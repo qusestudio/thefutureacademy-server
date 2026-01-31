@@ -2,7 +2,7 @@ use actix_web::{get, web, App, HttpServer};
 use actix_web::middleware::Logger;
 use env_logger::Env;
 
-#[get("/test")]
+#[get("/health")]
 async fn health_check() -> actix_web::Result<String> {
     Ok("The server is running".to_string())
 }
