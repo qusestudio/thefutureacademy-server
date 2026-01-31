@@ -1,7 +1,10 @@
+mod users;
+
 use actix_web::{get, web, App, HttpServer};
 use actix_web::middleware::Logger;
 use dotenv::dotenv;
 use env_logger::Env;
+use crate::users::students::students_controller::get_student;
 
 #[get("/health")]
 async fn health_check() -> actix_web::Result<String> {
@@ -14,7 +17,7 @@ async fn main() ->std::io::Result<()> {
     dotenv().ok();
 
     let port = std::env::var("PORT").unwrap_or_else(|_| {"8000".to_string()}).parse::<u16>().unwrap();
-    let host = std::env::var("HOST").unwrap_or_else(|_| {"localhost".to_string()});
+    let host = std::env::var("HOST").unwrap_or_else(|_| {"0.0.0.0".to_string()});
 
     HttpServer::new(|| {
         App::new().service(
@@ -22,6 +25,10 @@ async fn main() ->std::io::Result<()> {
                 .wrap(Logger::default())
                 .wrap(Logger::new("%a %{User-Agent}i %r %s %b %T"))
                 .service(health_check)
+                .service(
+                    web::scope("/students")
+                        .service(get_student)
+                ),
         )
     })
         .workers(4)
