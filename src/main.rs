@@ -1,5 +1,6 @@
 use actix_web::{get, web, App, HttpServer};
 use actix_web::middleware::Logger;
+use dotenv::dotenv;
 use env_logger::Env;
 
 #[get("/health")]
@@ -10,6 +11,9 @@ async fn health_check() -> actix_web::Result<String> {
 #[actix_web::main]
 async fn main() ->std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
+    dotenv().ok();
+
+    let port = std::env::var("port").unwrap_or_else(|_| {"8000".to_string()}).parse::<u16>().unwrap();
 
     HttpServer::new(|| {
         App::new().service(
@@ -20,7 +24,7 @@ async fn main() ->std::io::Result<()> {
         )
     })
         .workers(4)
-        .bind(("127.0.0.1", 8080))?
+        .bind(("127.0.0.1", port))?
         .run()
         .await
 }
