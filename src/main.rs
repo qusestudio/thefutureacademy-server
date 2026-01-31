@@ -13,7 +13,8 @@ async fn main() ->std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
     dotenv().ok();
 
-    let port = std::env::var("port").unwrap_or_else(|_| {"8000".to_string()}).parse::<u16>().unwrap();
+    let port = std::env::var("PORT").unwrap_or_else(|_| {"8000".to_string()}).parse::<u16>().unwrap();
+    let host = std::env::var("HOST").unwrap_or_else(|_| {"localhost".to_string()});
 
     HttpServer::new(|| {
         App::new().service(
@@ -24,7 +25,7 @@ async fn main() ->std::io::Result<()> {
         )
     })
         .workers(4)
-        .bind(("127.0.0.1", port))?
+        .bind((host, port))?
         .run()
         .await
 }
