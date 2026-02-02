@@ -49,6 +49,7 @@ async fn main() -> std::io::Result<()> {
     let frontend_origin =
         std::env::var("FRONTEND_ORIGIN").unwrap_or_else(|_| "http://localhost:3000".to_string());
 
+    log::info!("Frontend connecting from {}", &frontend_origin);
 
     let students_state = web::Data::new(StudentsState {
         repo: Arc::new(PostgresStudentRepo { pg_pool: pg_pool.clone() }),
