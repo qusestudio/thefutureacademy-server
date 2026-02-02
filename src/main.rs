@@ -70,7 +70,6 @@ async fn main() -> std::io::Result<()> {
                         .wrap(
                             Cors::default()
                                 .allowed_origin(&frontend_origin)
-                                .allowed_origin("http://localhost:3000")
                                 .allowed_methods(["GET", "POST"])
                                 .allowed_headers([header::AUTHORIZATION, header::CONTENT_TYPE])
                                 .supports_credentials()
