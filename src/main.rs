@@ -1,6 +1,6 @@
 mod middleware;
-mod users;
 mod subjects;
+mod users;
 
 use crate::users::students::repository::postgres_student_repo::PostgresStudentRepo;
 use actix_cors::Cors;
@@ -13,10 +13,12 @@ use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 
 /* ROUTES IMPORTS */
-use crate::users::students::students_controller::{create_student, get_student_by_cognito};
-use crate::users::instructors::instructors_controller::{create_instructor, get_instructor_by_cognito};
+use crate::users::instructors::instructors_controller::{
+    create_instructor, get_instructor_by_cognito,
+};
 use crate::users::instructors::instructors_state::InstructorsState;
 use crate::users::instructors::repository::postgres_instructor_repo::PostgresInstructorRepo;
+use crate::users::students::students_controller::{create_student, get_student_by_cognito};
 use crate::users::students::students_state::StudentsState;
 
 #[get("/health")]
@@ -53,11 +55,15 @@ async fn main() -> std::io::Result<()> {
     log::info!("Frontend connecting from {}", &frontend_origin);
 
     let students_state = web::Data::new(StudentsState {
-        repo: Arc::new(PostgresStudentRepo { pg_pool: pg_pool.clone() }),
+        repo: Arc::new(PostgresStudentRepo {
+            pg_pool: pg_pool.clone(),
+        }),
     });
 
     let instructors_state = web::Data::new(InstructorsState {
-        repo: Arc::new(PostgresInstructorRepo { pg_pool: pg_pool.clone() }),
+        repo: Arc::new(PostgresInstructorRepo {
+            pg_pool: pg_pool.clone(),
+        }),
     });
 
     HttpServer::new(move || {
@@ -66,33 +72,28 @@ async fn main() -> std::io::Result<()> {
                 .wrap(Logger::default())
                 .wrap(Logger::new("%a %{User-Agent}i %r %s %b %T"))
                 .service(health_check)
+                .wrap(
+                    Cors::default()
+                        .allowed_origin(&frontend_origin)
+                        .allowed_methods(["GET", "POST"])
+                        .allowed_headers([header::AUTHORIZATION, header::CONTENT_TYPE])
+                        .supports_credentials()
+                        .max_age(3600),
+                )
                 .service(
                     web::scope("/students")
-                        .wrap(
-                            Cors::default()
-                                .allowed_origin(&frontend_origin)
-                                .allowed_methods(["GET", "POST"])
-                                .allowed_headers([header::AUTHORIZATION, header::CONTENT_TYPE])
-                                .supports_credentials()
-                                .max_age(3600),
-                        )
                         .service(get_student_by_cognito)
                         .service(create_student)
                         .app_data(students_state.clone()),
                 )
                 .service(
                     web::scope("/instructors")
-                        .wrap(
-                            Cors::default()
-                                .allowed_origin(&frontend_origin)
-                                .allowed_methods(["GET", "POST"])
-                                .allowed_headers([header::AUTHORIZATION, header::CONTENT_TYPE])
-                                .supports_credentials()
-                                .max_age(3600),
-                        )
                         .service(get_instructor_by_cognito)
                         .service(create_instructor)
                         .app_data(instructors_state.clone()),
+                )
+                .service(
+                    web::scope("/subjects")
                 ),
         )
     })
