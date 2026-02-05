@@ -2,6 +2,12 @@ mod middleware;
 mod subjects;
 mod users;
 
+use crate::subjects::repo::postgres_subject_repo::PostgresSubjectRepo;
+use crate::subjects::subjects_controller::{
+    create_subject, get_subject, get_subjects_by_grade, get_subjects_by_instructor,
+    get_subjects_by_term, get_subjects_by_term_and_grade,
+};
+use crate::subjects::subjects_state::SubjectsState;
 use crate::users::students::repository::postgres_student_repo::PostgresStudentRepo;
 use actix_cors::Cors;
 use actix_web::http::header;
@@ -11,7 +17,6 @@ use dotenv::dotenv;
 use env_logger::Env;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
-
 /* ROUTES IMPORTS */
 use crate::users::instructors::instructors_controller::{
     create_instructor, get_instructor_by_cognito,
@@ -66,6 +71,12 @@ async fn main() -> std::io::Result<()> {
         }),
     });
 
+    let subjects_state = web::Data::new(SubjectsState {
+        repo: Arc::new(PostgresSubjectRepo {
+            pg_pool: pg_pool.clone(),
+        }),
+    });
+
     HttpServer::new(move || {
         App::new().service(
             web::scope("/api/v1")
@@ -83,18 +94,28 @@ async fn main() -> std::io::Result<()> {
                 .service(
                     web::scope("/students")
                         .service(get_student_by_cognito)
-                        .service(create_student)
-                        .app_data(students_state.clone()),
+                        .service(create_student),
                 )
                 .service(
                     web::scope("/instructors")
                         .service(get_instructor_by_cognito)
                         .service(create_instructor)
-                        .app_data(instructors_state.clone()),
+                        .service(get_subjects_by_instructor),
                 )
                 .service(
                     web::scope("/subjects")
-                ),
+                        .service(get_subject)
+                        .service(create_subject),
+                )
+                .service(
+                    web::scope("/grades")
+                        .service(get_subjects_by_grade)
+                        .service(get_subjects_by_term_and_grade),
+                )
+                .service(web::scope("/terms").service(get_subjects_by_term))
+                .app_data(students_state.clone())
+                .app_data(instructors_state.clone())
+                .app_data(subjects_state.clone()),
         )
     })
     .workers(4)

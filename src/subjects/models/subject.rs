@@ -7,8 +7,9 @@
 // }
 
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, FromRow)]
 pub struct Subject {
     pub id: String,
     #[serde(rename="instructorId")]
@@ -28,12 +29,12 @@ pub struct SubjectNew {
 }
 
 impl Subject {
-    pub fn new(subject_new: SubjectNew) -> Self {
+    pub fn new(subject_new: &SubjectNew) -> Self {
         let id :String = Self::gen_id(&subject_new.title, subject_new.grade, subject_new.term);
         Subject {
             id,
-            instructor_id: subject_new.instructor_id,
-            title: subject_new.title,
+            instructor_id: subject_new.instructor_id.clone(),
+            title: subject_new.title.clone(),
             grade: subject_new.grade,
             term: subject_new.term
         }
