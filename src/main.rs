@@ -112,7 +112,10 @@ async fn main() -> std::io::Result<()> {
                         .service(get_subjects_by_grade)
                         .service(get_subjects_by_term_and_grade),
                 )
-                .service(web::scope("/terms").service(get_subjects_by_term))
+                .service(
+                    web::scope("/terms")
+                        .service(get_subjects_by_term)
+                )
                 .app_data(students_state.clone())
                 .app_data(instructors_state.clone())
                 .app_data(subjects_state.clone()),
