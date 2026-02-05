@@ -1,5 +1,6 @@
 mod middleware;
 mod users;
+mod subjects;
 
 use crate::users::students::repository::postgres_student_repo::PostgresStudentRepo;
 use actix_cors::Cors;
