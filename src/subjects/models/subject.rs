@@ -1,11 +1,3 @@
-// interface Subject {
-// id: string,
-// instructorId: string,
-// title: string,
-// grade: number,
-// term: number,
-// }
-
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
