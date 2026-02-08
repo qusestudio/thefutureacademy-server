@@ -1,6 +1,8 @@
 mod middleware;
 mod subjects;
 mod users;
+mod topics;
+mod lesson;
 
 use crate::subjects::repo::postgres_subject_repo::PostgresSubjectRepo;
 use crate::subjects::subjects_controller::{
@@ -17,6 +19,14 @@ use dotenv::dotenv;
 use env_logger::Env;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
+use actix_web::error::ErrorInternalServerError;
+use actix_web::web::service;
+use log::Level::Error;
+use log::log;
+use sqlx::migrate::MigrateError;
+use crate::topics::repo::postgres_topic_repo::PostgresTopicRepo;
+use crate::topics::topics_controller::{create_topic, get_topic, get_topics_by_subject};
+use crate::topics::topics_state::TopicsState;
 /* ROUTES IMPORTS */
 use crate::users::instructors::instructors_controller::{
     create_instructor, get_instructor_by_cognito,
@@ -37,17 +47,19 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    // let pool = PgPool::connect(&database_url).await.expect("");
+
     let pg_pool = PgPoolOptions::new()
         .max_connections(10)
         .connect(&database_url)
         .await
         .expect("Failed to create PgPool");
 
-    sqlx::migrate!("./migrations")
+    let _ = sqlx::migrate!("./migrations")
         .run(&pg_pool)
         .await
-        .expect("Failed to run migrations");
+        .map_err(|e| {
+        log::error!("{}", e.to_string())
+    });
 
     let port = std::env::var("PORT")
         .unwrap_or_else(|_| "8000".to_string())
@@ -77,6 +89,13 @@ async fn main() -> std::io::Result<()> {
         }),
     });
 
+    let topics_state = web::Data::new(TopicsState {
+        repo: Arc::new(PostgresTopicRepo {
+            pg_pool: pg_pool.clone()
+        })
+    });
+
+
     HttpServer::new(move || {
         App::new().service(
             web::scope("/api/v1")
@@ -105,7 +124,13 @@ async fn main() -> std::io::Result<()> {
                 .service(
                     web::scope("/subjects")
                         .service(get_subject)
-                        .service(create_subject),
+                        .service(create_subject)
+                        .service(get_topics_by_subject),
+                )
+                .service(
+                    web::scope("/topics")
+                        .service(get_topic)
+                        .service(create_topic)
                 )
                 .service(
                     web::scope("/grades")
@@ -118,7 +143,8 @@ async fn main() -> std::io::Result<()> {
                 )
                 .app_data(students_state.clone())
                 .app_data(instructors_state.clone())
-                .app_data(subjects_state.clone()),
+                .app_data(subjects_state.clone())
+                .app_data(topics_state.clone()),
         )
     })
     .workers(4)
