@@ -1,4 +1,4 @@
-use crate::lesson::models::lesson::{Lesson, LessonNew};
+use crate::lessons::models::lesson::{Lesson, LessonNew};
 
 #[async_trait::async_trait]
 pub trait LessonRepository {

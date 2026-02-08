@@ -1,7 +1,7 @@
 use actix_web::{get, post, web, HttpRequest, HttpResponse};
 use actix_web::web::{Json, Path};
-use crate::lesson::lessons_state::LessonsState;
-use crate::lesson::models::lesson::LessonNew;
+use crate::lessons::lessons_state::LessonsState;
+use crate::lessons::models::lesson::LessonNew;
 use crate::middleware::middleware::middleware;
 
 #[get("/{id}")]
@@ -44,7 +44,7 @@ pub async fn get_lessons_by_topic(state: web::Data<LessonsState>, req: HttpReque
     }
 }
 
-#[post("/{topic_id}/lessons")]
+#[post("")]
 pub async fn create_lesson(state: web::Data<LessonsState>, req: HttpRequest, lesson_new: Json<LessonNew>) -> actix_web::Result<HttpResponse> {
     match middleware(req).await {
         Ok(claims) => {

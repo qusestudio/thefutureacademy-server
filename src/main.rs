@@ -2,7 +2,7 @@ mod middleware;
 mod subjects;
 mod users;
 mod topics;
-mod lesson;
+mod lessons;
 
 use crate::subjects::repo::postgres_subject_repo::PostgresSubjectRepo;
 use crate::subjects::subjects_controller::{
@@ -19,11 +19,9 @@ use dotenv::dotenv;
 use env_logger::Env;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
-use actix_web::error::ErrorInternalServerError;
-use actix_web::web::service;
-use log::Level::Error;
-use log::log;
-use sqlx::migrate::MigrateError;
+use crate::lessons::lesson_controllers::{create_lesson, get_lesson, get_lessons_by_topic};
+use crate::lessons::lessons_state::LessonsState;
+use crate::lessons::repo::postgres_lesson_repo::PostgresLessonRepo;
 use crate::topics::repo::postgres_topic_repo::PostgresTopicRepo;
 use crate::topics::topics_controller::{create_topic, get_topic, get_topics_by_subject};
 use crate::topics::topics_state::TopicsState;
@@ -95,6 +93,12 @@ async fn main() -> std::io::Result<()> {
         })
     });
 
+    let lessons_state = web::Data::new( LessonsState {
+        repo: Arc::new( PostgresLessonRepo {
+            pg_pool: pg_pool.clone()
+        })
+    });
+
 
     HttpServer::new(move || {
         App::new().service(
@@ -131,6 +135,11 @@ async fn main() -> std::io::Result<()> {
                     web::scope("/topics")
                         .service(get_topic)
                         .service(create_topic)
+                        .service(get_lessons_by_topic)
+                ).service(
+                    web::scope("/lessons")
+                        .service(get_lesson)
+                        .service(create_lesson)
                 )
                 .service(
                     web::scope("/grades")
@@ -144,7 +153,8 @@ async fn main() -> std::io::Result<()> {
                 .app_data(students_state.clone())
                 .app_data(instructors_state.clone())
                 .app_data(subjects_state.clone())
-                .app_data(topics_state.clone()),
+                .app_data(topics_state.clone())
+                .app_data(lessons_state.clone()),
         )
     })
     .workers(4)
