@@ -30,8 +30,8 @@ pub async fn get_lessons_by_topic(state: web::Data<LessonsState>, req: HttpReque
         Ok(claims) => {
             log::info!("User {} getting lessons by topic id {}", claims.sub ,&topic_id.clone());
             match state.repo.db_get_lessons_by_topic(topic_id.into_inner().as_str()).await {
-                Ok(lesson) => {
-                    Ok(HttpResponse::Ok().json(Json(lesson)))
+                Ok(lessons) => {
+                    Ok(HttpResponse::Ok().json(Json(lessons)))
                 },
                 Err(e) => {
                     Ok(HttpResponse::NotFound().json(e.to_string()))

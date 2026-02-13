@@ -3,6 +3,7 @@ mod subjects;
 mod users;
 mod topics;
 mod lessons;
+mod enrollments;
 
 use crate::subjects::repo::postgres_subject_repo::PostgresSubjectRepo;
 use crate::subjects::subjects_controller::{
@@ -19,6 +20,9 @@ use dotenv::dotenv;
 use env_logger::Env;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
+use crate::enrollments::enrollments_controller::{create_enrollment, get_enrollment, get_enrollment_for_subject_student, get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled};
+use crate::enrollments::enrollments_state::EnrollmentsState;
+use crate::enrollments::repo::postgres_enrollment_repo::PostgresEnrollmentRepo;
 use crate::lessons::lesson_controllers::{create_lesson, get_lesson, get_lessons_by_topic};
 use crate::lessons::lessons_state::LessonsState;
 use crate::lessons::repo::postgres_lesson_repo::PostgresLessonRepo;
@@ -98,6 +102,12 @@ async fn main() -> std::io::Result<()> {
             pg_pool: pg_pool.clone()
         })
     });
+    
+    let enrollments_state = web::Data::new( EnrollmentsState {
+        repo: Arc::new(PostgresEnrollmentRepo {
+            pg_pool: pg_pool.clone()
+        })
+    });
 
 
     HttpServer::new(move || {
@@ -117,7 +127,9 @@ async fn main() -> std::io::Result<()> {
                 .service(
                     web::scope("/students")
                         .service(get_student_by_cognito)
-                        .service(create_student),
+                        .service(create_student)
+                        .service(get_enrollments_by_student)
+                        .service(get_not_enrolled),
                 )
                 .service(
                     web::scope("/instructors")
@@ -129,7 +141,14 @@ async fn main() -> std::io::Result<()> {
                     web::scope("/subjects")
                         .service(get_subject)
                         .service(create_subject)
-                        .service(get_topics_by_subject),
+                        .service(get_topics_by_subject)
+                        .service(get_enrollments_by_subject),
+                )
+                .service(
+                    web::scope("/enrollments")
+                        .service(get_enrollment)
+                        .service(create_enrollment)
+                        .service(get_enrollment_for_subject_student)
                 )
                 .service(
                     web::scope("/topics")
@@ -154,7 +173,8 @@ async fn main() -> std::io::Result<()> {
                 .app_data(instructors_state.clone())
                 .app_data(subjects_state.clone())
                 .app_data(topics_state.clone())
-                .app_data(lessons_state.clone()),
+                .app_data(lessons_state.clone())
+                .app_data(enrollments_state.clone()),
         )
     })
     .workers(4)
