@@ -35,8 +35,10 @@ use crate::users::instructors::instructors_controller::{
 };
 use crate::users::instructors::instructors_state::InstructorsState;
 use crate::users::instructors::repository::postgres_instructor_repo::PostgresInstructorRepo;
+use crate::users::students::repository::pg_student_profile_repo::PGStudentProfileRepo;
+use crate::users::students::student_profiles_controller::{create_student_profile, get_student_profile_by_cognito};
 use crate::users::students::students_controller::{create_student, get_student_by_cognito};
-use crate::users::students::students_state::StudentsState;
+use crate::users::students::students_state::{StudentProfilesState, StudentsState};
 
 #[get("/health")]
 async fn health_check() -> actix_web::Result<String> {
@@ -76,6 +78,12 @@ async fn main() -> std::io::Result<()> {
     let students_state = web::Data::new(StudentsState {
         repo: Arc::new(PostgresStudentRepo {
             pg_pool: pg_pool.clone(),
+        }),
+    });
+    
+    let student_profiles_state = web::Data::new( StudentProfilesState {
+        repo: Arc::new( PGStudentProfileRepo {
+            pg_pool: pg_pool.clone()
         }),
     });
 
@@ -132,6 +140,11 @@ async fn main() -> std::io::Result<()> {
                         .service(get_not_enrolled),
                 )
                 .service(
+                    web::scope("/student-profiles")
+                        .service(get_student_profile_by_cognito)
+                        .service(create_student_profile)
+                )
+                .service(
                     web::scope("/instructors")
                         .service(get_instructor_by_cognito)
                         .service(create_instructor)
@@ -170,6 +183,7 @@ async fn main() -> std::io::Result<()> {
                         .service(get_subjects_by_term)
                 )
                 .app_data(students_state.clone())
+                .app_data(student_profiles_state.clone())
                 .app_data(instructors_state.clone())
                 .app_data(subjects_state.clone())
                 .app_data(topics_state.clone())

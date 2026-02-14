@@ -32,7 +32,7 @@ pub struct StudentEnrollment {
 }
 
 #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
-pub struct NotEnrolled {
+pub struct AvailableSubject {
     #[serde(rename = "subjectId")]
     pub subject_id: String,
     #[serde(rename = "subjectTitle")]

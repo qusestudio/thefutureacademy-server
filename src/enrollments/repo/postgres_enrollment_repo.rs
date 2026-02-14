@@ -1,4 +1,6 @@
-use crate::enrollments::models::enrollment::{Enrollment, EnrollmentNew, NotEnrolled, StudentEnrollment};
+use crate::enrollments::models::enrollment::{
+    AvailableSubject, Enrollment, EnrollmentNew, StudentEnrollment,
+};
 use crate::enrollments::repo::enrollment_repo::EnrollmentRepository;
 use sqlx::{Error, PgPool};
 
@@ -45,10 +47,11 @@ impl EnrollmentRepository for PostgresEnrollmentRepo {
         Ok(enrollments)
     }
 
-    async fn db_get_non_enrolled_subjects(
+    async fn db_get_available_subjects(
         &self,
         student_id: &str,
-    ) -> sqlx::Result<Vec<NotEnrolled>, Error> {
+        grade: i32,
+    ) -> sqlx::Result<Vec<AvailableSubject>, Error> {
         let non_enrollments = sqlx::query_as(
             "SELECT
                     sub.id AS subject_id,
@@ -60,10 +63,11 @@ impl EnrollmentRepository for PostgresEnrollmentRepo {
                         LEFT JOIN
                         enrollments e ON sub.id = e.subject_id AND e.student_id =$1
                 WHERE
-                    e.id IS NULL
+                    sub.grade=$2 AND e.id IS NULL
             ",
         )
         .bind(student_id)
+        .bind(grade)
         .fetch_all(&self.pg_pool)
         .await?;
         Ok(non_enrollments)
