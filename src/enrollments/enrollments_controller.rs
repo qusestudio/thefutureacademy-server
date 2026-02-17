@@ -1,6 +1,6 @@
 use crate::enrollments::enrollments_state::EnrollmentsState;
 use crate::enrollments::models::enrollment::EnrollmentNew;
-use crate::middleware::middleware::middleware;
+use crate::authentication::middleware::middleware::middleware;
 use actix_web::web::{Json, Path};
 use actix_web::{HttpRequest, HttpResponse, get, post};
 use serde::Deserialize;
