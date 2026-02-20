@@ -44,5 +44,5 @@ pub struct CardDetails {
     pub expiry_year: i32,
     pub masked_card: String,
     pub scheme: String,
-    pub card_holder: String,
+    pub card_holder: Option<String>,
 }
