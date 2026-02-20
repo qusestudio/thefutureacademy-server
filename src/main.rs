@@ -1,50 +1,42 @@
+mod app_state;
 mod authentication;
 mod contents;
 mod enrollments;
 mod payments;
 
-use crate::enrollments::enrollments_controller::{
-    create_enrollment, get_enrollment, get_enrollment_for_subject_student,
-    get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled,
-};
-use crate::enrollments::enrollments_state::EnrollmentsState;
-use crate::enrollments::repo::postgres_enrollment_repo::PostgresEnrollmentRepo;
 use actix_cors::Cors;
 use actix_web::http::header;
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer, get, web};
-use authentication::users::students::repository::postgres_student_repo::PostgresStudentRepo;
-use contents::lessons::lesson_controllers::{create_lesson, get_lesson, get_lessons_by_topic};
-use contents::lessons::lessons_state::LessonsState;
-use contents::lessons::repo::postgres_lesson_repo::PostgresLessonRepo;
-use contents::subjects::repo::postgres_subject_repo::PostgresSubjectRepo;
-use contents::subjects::subjects_controller::{
-    create_subject, get_subject, get_subjects_by_grade, get_subjects_by_instructor,
-    get_subjects_by_term, get_subjects_by_term_and_grade,
-};
-use contents::subjects::subjects_state::SubjectsState;
-use contents::topics::repo::postgres_topic_repo::PostgresTopicRepo;
-use contents::topics::topics_controller::{create_topic, get_topic, get_topics_by_subject};
-use contents::topics::topics_state::TopicsState;
+
 use dotenv::dotenv;
 use env_logger::Env;
 use sqlx::postgres::PgPoolOptions;
-use std::sync::Arc;
-/* ROUTES IMPORTS */
+
+/// App State Factory Import
+use crate::app_state::app_state_init;
+
+/// ROUTES IMPORTS
 use authentication::users::instructors::instructors_controller::{
     create_instructor, get_instructor_by_cognito,
 };
-use authentication::users::instructors::instructors_state::InstructorsState;
-use authentication::users::instructors::repository::postgres_instructor_repo::PostgresInstructorRepo;
-use authentication::users::students::repository::pg_student_profile_repo::PGStudentProfileRepo;
 use authentication::users::students::student_profiles_controller::{
     create_student_profile, get_student_profile_by_cognito,
 };
 use authentication::users::students::students_controller::{
     create_student, get_student_by_cognito,
 };
-use authentication::users::students::students_state::{StudentProfilesState, StudentsState};
+use crate::enrollments::enrollments_controller::{
+    create_enrollment, get_enrollment, get_enrollment_for_subject_student,
+    get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled,
+};
 use crate::payments::payments_controller::{create_yoco_checkout, payment_notification_webhook};
+use contents::lessons::lesson_controllers::{create_lesson, get_lesson, get_lessons_by_topic};
+use contents::subjects::subjects_controller::{
+    create_subject, get_subject, get_subjects_by_grade, get_subjects_by_instructor,
+    get_subjects_by_term, get_subjects_by_term_and_grade,
+};
+use contents::topics::topics_controller::{create_topic, get_topic, get_topics_by_subject};
 
 #[get("/health")]
 async fn health_check() -> actix_web::Result<String> {
@@ -79,47 +71,7 @@ async fn main() -> std::io::Result<()> {
 
     log::info!("Frontend connecting from {}", &frontend_origin);
 
-    let students_state = web::Data::new(StudentsState {
-        repo: Arc::new(PostgresStudentRepo {
-            pg_pool: pg_pool.clone(),
-        }),
-    });
-
-    let student_profiles_state = web::Data::new(StudentProfilesState {
-        repo: Arc::new(PGStudentProfileRepo {
-            pg_pool: pg_pool.clone(),
-        }),
-    });
-
-    let instructors_state = web::Data::new(InstructorsState {
-        repo: Arc::new(PostgresInstructorRepo {
-            pg_pool: pg_pool.clone(),
-        }),
-    });
-
-    let subjects_state = web::Data::new(SubjectsState {
-        repo: Arc::new(PostgresSubjectRepo {
-            pg_pool: pg_pool.clone(),
-        }),
-    });
-
-    let topics_state = web::Data::new(TopicsState {
-        repo: Arc::new(PostgresTopicRepo {
-            pg_pool: pg_pool.clone(),
-        }),
-    });
-
-    let lessons_state = web::Data::new(LessonsState {
-        repo: Arc::new(PostgresLessonRepo {
-            pg_pool: pg_pool.clone(),
-        }),
-    });
-
-    let enrollments_state = web::Data::new(EnrollmentsState {
-        repo: Arc::new(PostgresEnrollmentRepo {
-            pg_pool: pg_pool.clone(),
-        }),
-    });
+    let state = app_state_init(pg_pool);
 
     HttpServer::new(move || {
         App::new().service(
@@ -130,7 +82,6 @@ async fn main() -> std::io::Result<()> {
                 .wrap(
                     Cors::default()
                         .allowed_origin(&frontend_origin)
-                        .allowed_origin("https://payments.yoco.com")
                         .allowed_methods(["GET", "POST"])
                         .allowed_headers([header::AUTHORIZATION, header::CONTENT_TYPE])
                         .supports_credentials()
@@ -139,7 +90,7 @@ async fn main() -> std::io::Result<()> {
                 .service(
                     web::scope("/payments")
                         .service(create_yoco_checkout)
-                        .service(payment_notification_webhook)
+                        .service(payment_notification_webhook),
                 )
                 .service(
                     web::scope("/students")
@@ -189,13 +140,14 @@ async fn main() -> std::io::Result<()> {
                         .service(get_subjects_by_term_and_grade),
                 )
                 .service(web::scope("/terms").service(get_subjects_by_term))
-                .app_data(students_state.clone())
-                .app_data(student_profiles_state.clone())
-                .app_data(instructors_state.clone())
-                .app_data(subjects_state.clone())
-                .app_data(topics_state.clone())
-                .app_data(lessons_state.clone())
-                .app_data(enrollments_state.clone()),
+                .app_data(state.students.clone())
+                .app_data(state.student_profiles.clone())
+                .app_data(state.instructors.clone())
+                .app_data(state.subjects.clone())
+                .app_data(state.topics.clone())
+                .app_data(state.lessons.clone())
+                .app_data(state.enrollments.clone())
+                .app_data(state.checkouts.clone()),
         )
     })
     .workers(4)

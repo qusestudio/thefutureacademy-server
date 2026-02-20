@@ -3,32 +3,24 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(serde::Deserialize, FromRow, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct StudentProfile {
     pub id: String,
-    #[serde(rename="studentId")]
     pub student_id: String,
-    #[serde(rename="firstName")]
     pub first_name: String,
-    #[serde(rename="lastName")]
     pub last_name: String,
-    #[serde(rename="dateOfBirth")]
     pub date_of_birth: String,
-    #[serde(rename="schoolName")]
     pub school_name: String,
     pub grade: i32,
 }
 
 #[derive(serde::Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct StudentProfileNew {
-    #[serde(rename="studentId")]
     pub student_id: String,
-    #[serde(rename="firstName")]
     pub first_name: String,
-    #[serde(rename="lastName")]
     pub last_name: String,
-    #[serde(rename="dateOfBirth")]
     pub date_of_birth: String,
-    #[serde(rename="schoolName")]
     pub school_name: String,
     pub grade: i32,
 }

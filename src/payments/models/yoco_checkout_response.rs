@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct YocoCheckoutResponse {
     pub id: String,
@@ -35,7 +35,7 @@ pub struct YocoCheckoutResponse {
     pub client_reference_id: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LineItem {
     pub display_name: String,
@@ -44,7 +44,7 @@ pub struct LineItem {
     pub description: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PricingDetails {
     pub price: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
