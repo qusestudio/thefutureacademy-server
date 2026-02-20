@@ -74,9 +74,22 @@ pub async fn create_yoco_checkout(
 #[post("/webhooks/payment-notification")]
 pub async fn payment_notification_webhook(
     req: HttpRequest,
-    payload: Json<YocoPaymentNotification>,
-) -> actix_web::Result<HttpResponse, std::io::Error> {
+    payload: actix_web::Result<Json<YocoPaymentNotification>>,
+) -> actix_web::Result<HttpResponse> {
     log::info!("Receiving payment notification");
+
+    // Handle deserialization errors
+    let payload = match payload {
+        Ok(p) => p,
+        Err(e) => {
+            log::error!("Failed to deserialize webhook payload: {}", e);
+            return Ok(HttpResponse::BadRequest().json(serde_json::json!({
+                "error": format!("Invalid payload: {}", e)
+            })));
+        }
+    };
+
+    // Check signature
     match req
         .headers()
         .get("webhook-signature")
@@ -84,11 +97,13 @@ pub async fn payment_notification_webhook(
     {
         Some(signature) => {
             log::info!("Payment notification: {:?}", payload.into_inner());
-            Ok(HttpResponse::Ok().status(StatusCode::OK).json(""))
+            Ok(HttpResponse::Ok().json(""))
         }
         None => {
-            log::info!("Webhook-signature is missing: Payment notification not received");
-            Err(Error::other("Webhook-signature is missing"))
+            log::warn!("Webhook-signature is missing");
+            Ok(HttpResponse::Unauthorized().json(serde_json::json!({
+                "error": "Webhook-signature is missing"
+            })))
         }
     }
 }
