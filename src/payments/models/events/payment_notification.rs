@@ -44,5 +44,6 @@ pub struct CardDetails {
     pub expiry_year: i32,
     pub masked_card: String,
     pub scheme: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub card_holder: Option<String>,
 }
