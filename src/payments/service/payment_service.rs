@@ -4,6 +4,7 @@ use reqwest::header::HeaderMap;
 pub struct PaymentService {}
 
 impl PaymentService {
+    // OUTBOUND
     pub async fn make_payment(
         checkout_request: YocoCheckoutRequest,
     ) -> Result<reqwest::Response, reqwest::Error> {

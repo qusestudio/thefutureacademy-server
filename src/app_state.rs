@@ -16,6 +16,8 @@ use crate::payments::repo::postgres_checkout_repo::PostgresCheckoutRepository;
 use actix_web::web;
 use sqlx::PgPool;
 use std::sync::Arc;
+use crate::payments::payments_state::PaymentsState;
+use crate::payments::repo::postgres_payment_repo::PostgresPaymentRepo;
 
 pub struct AppState {
     pub students: web::Data<StudentsState>,
@@ -26,6 +28,7 @@ pub struct AppState {
     pub lessons: web::Data<LessonsState>,
     pub enrollments: web::Data<EnrollmentsState>,
     pub checkouts: web::Data<CheckoutsState>,
+    pub payments: web::Data<PaymentsState>,
 }
 
 pub fn app_state_init(pg_pool: PgPool) -> AppState {
@@ -69,6 +72,11 @@ pub fn app_state_init(pg_pool: PgPool) -> AppState {
             repo: Arc::new(PostgresCheckoutRepository {
                 pg_pool: pg_pool.clone(),
             }),
+        }),
+        payments: web::Data::new(PaymentsState {
+            repo: Arc::new(PostgresPaymentRepo {
+                pg_pool: pg_pool.clone(),
+            })
         }),
     }
 }

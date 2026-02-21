@@ -149,7 +149,8 @@ async fn main() -> std::io::Result<()> {
                 .app_data(state.topics.clone())
                 .app_data(state.lessons.clone())
                 .app_data(state.enrollments.clone())
-                .app_data(state.checkouts.clone()),
+                .app_data(state.checkouts.clone())
+                .app_data(state.payments.clone()),
         )
     })
     .workers(4)

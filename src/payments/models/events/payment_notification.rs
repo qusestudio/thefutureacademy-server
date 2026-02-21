@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct YocoPaymentNotification {
     pub created_date: String,
@@ -11,7 +11,7 @@ pub struct YocoPaymentNotification {
     pub payload: PaymentPayload,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PaymentPayload {
     pub amount: i64,
@@ -28,7 +28,7 @@ pub struct PaymentPayload {
     pub payment_method_details: Option<PaymentMethodDetails>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PaymentMethodDetails {
     #[serde(rename = "type")]
@@ -37,7 +37,7 @@ pub struct PaymentMethodDetails {
     pub card: Option<CardDetails>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CardDetails {
     pub expiry_month: i32,
