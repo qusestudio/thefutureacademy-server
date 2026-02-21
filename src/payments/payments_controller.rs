@@ -77,7 +77,7 @@ pub async fn get_checkout_by_student(
     match middleware(req).await {
         Ok(claims) => {
             log::info!("User {} fetching checkout info", claims.sub.clone());
-            match c_state.repo.get_checkout(student_id.as_str()).await {
+            match c_state.repo.get_checkout_by_student_id(student_id.as_str()).await {
                 Ok(checkout_result) => {
                     match checkout_result {
                         Some(checkout) => {
