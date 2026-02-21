@@ -16,6 +16,15 @@ impl CheckoutRepository for PostgresCheckoutRepository {
         Ok(checkout)
     }
 
+    async fn get_checkout_by_student_id(&self, student_id: &str) -> sqlx::Result<Option<Checkout>, Error> {
+        let checkout = sqlx::query_as("SELECT * FROM checkouts WHERE student_id=$1")
+            .bind(student_id)
+            .fetch_optional(&self.pg_pool)
+            .await?;
+        
+        Ok(checkout)
+    }
+
     async fn create_checkout(&self, checkout: Checkout) -> sqlx::Result<Checkout, Error> {
         let checkout = sqlx::query_as("
         INSERT INTO checkouts (id, student_id, amount, status, month, year, created_at, updated_at)

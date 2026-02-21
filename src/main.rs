@@ -3,6 +3,7 @@ mod authentication;
 mod contents;
 mod enrollments;
 mod payments;
+mod billing;
 
 use actix_cors::Cors;
 use actix_web::http::header;
@@ -30,7 +31,7 @@ use crate::enrollments::enrollments_controller::{
     create_enrollment, get_enrollment, get_enrollment_for_subject_student,
     get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled,
 };
-use crate::payments::payments_controller::{create_yoco_checkout, payment_notification_webhook};
+use crate::payments::payments_controller::{create_yoco_checkout, get_checkout_by_student, payment_notification_webhook};
 use contents::lessons::lesson_controllers::{create_lesson, get_lesson, get_lessons_by_topic};
 use contents::subjects::subjects_controller::{
     create_subject, get_subject, get_subjects_by_grade, get_subjects_by_instructor,
@@ -99,7 +100,8 @@ async fn main() -> std::io::Result<()> {
                         .service(get_student_by_cognito)
                         .service(create_student)
                         .service(get_enrollments_by_student)
-                        .service(get_not_enrolled),
+                        .service(get_not_enrolled)
+                        .service(get_checkout_by_student),
                 )
                 .service(
                     web::scope("/student-profiles")

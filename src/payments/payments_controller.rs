@@ -7,11 +7,9 @@ use crate::payments::models::yoco_checkout_request::YocoCheckoutRequest;
 use crate::payments::models::yoco_checkout_response::YocoCheckoutResponse;
 use crate::payments::payments_state::PaymentsState;
 use crate::payments::service::payment_service::PaymentService;
-use actix_web::http::StatusCode;
-use actix_web::web::{Data, Json};
-use actix_web::{HttpRequest, HttpResponse, post};
+use actix_web::web::{Data, Json, Path};
+use actix_web::{HttpRequest, HttpResponse, post, get};
 use chrono::{Datelike, Utc};
-use std::io::Error;
 
 #[post("")]
 pub async fn create_yoco_checkout(
@@ -69,6 +67,38 @@ pub async fn create_yoco_checkout(
         }
     }
 }
+
+#[get("/{student_id}/checkout")]
+pub async fn get_checkout_by_student(
+    c_state: Data<CheckoutsState>,
+    req: HttpRequest,
+    student_id: Path<String>,
+) -> actix_web::Result<HttpResponse, actix_web::Error> {
+    match middleware(req).await {
+        Ok(claims) => {
+            log::info!("User {} fetching checkout info", claims.sub.clone());
+            match c_state.repo.get_checkout(student_id.as_str()).await {
+                Ok(checkout_result) => {
+                    match checkout_result {
+                        Some(checkout) => {
+                            Ok(HttpResponse::Ok().json(checkout))
+                        },
+                        None => Ok(HttpResponse::NotFound().json("Checkout not found"))
+                    }
+                },
+                Err(error) => {
+                    log::error!("{:?}", error);
+                    Ok(HttpResponse::Unauthorized().json(error.to_string()))
+                }
+            }
+        },
+        Err(error) => {
+            log::error!("{:?}", error);
+            Ok(HttpResponse::Unauthorized().json(error.to_string()))
+        }
+    }
+}
+
 
 // webhook
 #[post("/webhooks/payment-notification")]
