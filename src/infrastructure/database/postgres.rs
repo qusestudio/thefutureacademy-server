@@ -13,6 +13,7 @@ pub async fn init_pool() -> PgPool {
 }
 
 pub async fn run_migrations(pool: &PgPool) {
+    log::info!("Running migrations");
     let _ = sqlx::migrate!("./migrations")
         .run(pool)
         .await
