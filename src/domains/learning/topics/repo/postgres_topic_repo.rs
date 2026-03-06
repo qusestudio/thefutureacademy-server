@@ -8,10 +8,10 @@ pub struct PostgresTopicRepo {
 
 #[async_trait::async_trait]
 impl TopicRepository for PostgresTopicRepo {
-    async fn db_get_topic(&self, id: String) -> sqlx::Result<Topic, Error> {
+    async fn db_get_topic(&self, topic_id: &str) -> sqlx::Result<Option<Topic>, Error> {
         let topic = sqlx::query_as("SELECT * FROM topics WHERE id = $1")
-            .bind(&id)
-            .fetch_one(&self.pg_pool)
+            .bind(&topic_id)
+            .fetch_optional(&self.pg_pool)
             .await?;
 
         Ok(topic)

@@ -1,7 +1,7 @@
 use actix_web::{post, web, HttpResponse};
 use actix_web::web::Json;
 use crate::configuration::state::AppState;
-use crate::domains::channel::events_channel_checker::{EventMessage, EventsChannelChecker};
+use crate::infrastructure::channel::events_channel_checker::{EventMessage, EventsChannelChecker};
 
 #[post("/channel")]
 pub async fn send_test_event(

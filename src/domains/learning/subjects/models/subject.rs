@@ -43,5 +43,19 @@ impl Subject {
     }
 }
 
-// utils
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SubjectViewedEvent {
+    pub user_id: String,
+    pub subject_title: String,
+}
+
+impl SubjectViewedEvent {
+    pub fn new(user_id: &str, subject_title: &str) -> Self {
+        Self {
+            user_id: user_id.to_string(),
+            subject_title: subject_title.to_string()
+        }
+    }
+}
+
 

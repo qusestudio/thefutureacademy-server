@@ -7,3 +7,4 @@ pub struct StudentsService {
     pub repo: Arc<dyn StudentRepository + Send + Sync>,
     pub event_bus: web::Data<EventBus>,
 }
+

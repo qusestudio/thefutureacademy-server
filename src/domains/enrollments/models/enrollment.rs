@@ -2,6 +2,19 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct StudentEnrolledEvent {
+    pub student_id: String,
+}
+
+impl StudentEnrolledEvent {
+    pub fn new(student_id: &str) -> StudentEnrolledEvent {
+        StudentEnrolledEvent {
+            student_id: student_id.to_string(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, FromRow, Clone)]
 pub struct Enrollment {
     pub id: String,
@@ -11,9 +24,9 @@ pub struct Enrollment {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EnrollmentNew {
-    #[serde(rename="studentId")]
+    #[serde(rename = "studentId")]
     pub student_id: String,
-    #[serde(rename="subjectId")]
+    #[serde(rename = "subjectId")]
     pub subject_id: String,
 }
 
@@ -40,7 +53,6 @@ pub struct AvailableSubject {
     pub grade: i32,
     pub term: i32,
 }
-
 
 impl Enrollment {
     pub fn new(enrollment_new: EnrollmentNew) -> Enrollment {

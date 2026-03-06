@@ -8,8 +8,8 @@ use crate::infrastructure::middleware::middleware::middleware;
 pub async fn get_lesson(state: web::Data<AppState>, req: HttpRequest, id: Path<String>) -> actix_web::Result<HttpResponse> {
     match middleware(req).await {
         Ok(claims) => {
-            log::info!("User {} getting lesson with id {}", claims.sub ,&id.clone());
-            match state.lessons.repo.db_get_lesson(id.into_inner().as_str()).await {
+            log::info!("User {} getting lesson with id {}", &claims.sub ,&id.clone());
+            match state.lessons.get_lesson(&claims.sub, id.into_inner().as_str()).await {
                 Ok(lesson) => {
                     Ok(HttpResponse::Ok().json(Json(lesson)))
                 }
@@ -29,7 +29,7 @@ pub async fn get_lessons_by_topic(state: web::Data<AppState>, req: HttpRequest, 
     match middleware(req).await {
         Ok(claims) => {
             log::info!("User {} getting lessons by topic id {}", claims.sub ,&topic_id.clone());
-            match state.lessons.repo.db_get_lessons_by_topic(topic_id.into_inner().as_str()).await {
+            match state.lessons.get_lessons_by_topic_id(topic_id.into_inner().as_str()).await {
                 Ok(lessons) => {
                     Ok(HttpResponse::Ok().json(Json(lessons)))
                 },
@@ -49,7 +49,7 @@ pub async fn create_lesson(state: web::Data<AppState>, req: HttpRequest, lesson_
     match middleware(req).await {
         Ok(claims) => {
             log::info!("User {} creating a new lesson", claims.sub);
-            match state.lessons.repo.db_create_lesson(&lesson_new.into_inner()).await {
+            match state.lessons.create_lesson( &claims.sub ,&lesson_new.into_inner()).await {
                 Ok(lesson) => {
                     Ok(HttpResponse::Ok().json(Json(lesson)))
                 },

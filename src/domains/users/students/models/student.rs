@@ -21,3 +21,8 @@ pub struct StudentNew {
     #[serde(rename="phoneNumber")]
     pub phone_number: String
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StudentRegisteredEvent {
+    pub student_id: String,
+}

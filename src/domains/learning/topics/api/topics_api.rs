@@ -20,7 +20,7 @@ pub async fn get_topic(
                 &topic_id.clone()
             );
 
-            match state.topics.repo.db_get_topic(topic_id.into_inner()).await {
+            match state.topics.get_topic(&claims.sub, topic_id.into_inner().as_str()).await {
                 Ok(topic) => Ok(HttpResponse::Ok().json(Json(topic))),
                 Err(_) => Ok(HttpResponse::NotFound().json("Topic not found")),
             }

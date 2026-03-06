@@ -52,3 +52,8 @@ pub struct InstructorProfileNew {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InstructorProfileCreatedEvent {
+    pub instructor_id: String,
+}

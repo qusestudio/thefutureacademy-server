@@ -87,7 +87,7 @@ impl EnrollmentRepository for PostgresEnrollmentRepo {
     async fn db_create_enrollment(
         &self,
         enrollment_new: EnrollmentNew,
-    ) -> sqlx::Result<Enrollment, Error> {
+    ) -> sqlx::Result<Option<Enrollment>, Error> {
         let enrollment = Enrollment::new(enrollment_new);
         let enrollment = sqlx::query_as(
             "
@@ -97,7 +97,7 @@ impl EnrollmentRepository for PostgresEnrollmentRepo {
         .bind(enrollment.id)
         .bind(enrollment.student_id)
         .bind(enrollment.subject_id)
-        .fetch_one(&self.pg_pool)
+        .fetch_optional(&self.pg_pool)
         .await?;
 
         Ok(enrollment)

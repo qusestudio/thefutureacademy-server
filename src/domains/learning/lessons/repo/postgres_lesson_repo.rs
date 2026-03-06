@@ -7,10 +7,10 @@ pub struct PostgresLessonRepo {
 
 #[async_trait::async_trait]
 impl LessonRepository for PostgresLessonRepo {
-    async fn db_get_lesson(&self, id: &str) -> sqlx::Result<Lesson, sqlx::Error> {
+    async fn db_get_lesson(&self, id: &str) -> sqlx::Result<Option<Lesson>, sqlx::Error> {
         let lesson = sqlx::query_as("select * from lessons where id = $1")
             .bind(&id)
-            .fetch_one(&self.pg_pool)
+            .fetch_optional(&self.pg_pool)
             .await?;
 
         Ok(lesson)
@@ -28,7 +28,7 @@ impl LessonRepository for PostgresLessonRepo {
         Ok(lessons)
     }
 
-    async fn db_create_lesson(&self, lesson_new: &LessonNew) -> sqlx::Result<Lesson, sqlx::Error> {
+    async fn db_create_lesson(&self, lesson_new: &LessonNew) -> sqlx::Result<Option<Lesson>, sqlx::Error> {
         let lesson = Lesson::new(lesson_new);
         let lesson = sqlx::query_as("
                     INSERT INTO lessons (id, topic_id, video_id, title, description) 
@@ -38,7 +38,7 @@ impl LessonRepository for PostgresLessonRepo {
             .bind(&lesson.video_id)
             .bind(&lesson.title)
             .bind(&lesson.description)
-            .fetch_one(&self.pg_pool)
+            .fetch_optional(&self.pg_pool)
             .await?;
 
         Ok(lesson)

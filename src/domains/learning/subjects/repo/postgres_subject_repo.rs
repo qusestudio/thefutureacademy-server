@@ -8,10 +8,10 @@ pub struct PostgresSubjectRepo {
 
 #[async_trait::async_trait]
 impl SubjectRepository for PostgresSubjectRepo {
-    async fn db_get_subject(&self, id: &String) -> sqlx::Result<Subject, Error> {
+    async fn db_get_subject(&self, id: &str) -> sqlx::Result<Option<Subject>, Error> {
         let subject = sqlx::query_as("SELECT * FROM subjects WHERE id = $1")
             .bind(&id)
-            .fetch_one(&self.pg_pool)
+            .fetch_optional(&self.pg_pool)
             .await?;
 
         Ok(subject)
@@ -57,7 +57,7 @@ impl SubjectRepository for PostgresSubjectRepo {
         Ok(subjects)
     }
 
-    async fn db_create_subject(&self, subject_new: &SubjectNew) -> sqlx::Result<Subject, Error> {
+    async fn db_create_subject(&self, subject_new: &SubjectNew) -> sqlx::Result<Option<Subject>, Error> {
         let subject = Subject::new(subject_new);
         let subjects = sqlx::query_as(
             "INSERT INTO subjects (id,  title, grade, term) VALUES ($1, $2, $3, $4) RETURNING *")
@@ -65,7 +65,7 @@ impl SubjectRepository for PostgresSubjectRepo {
             .bind(&subject.title)
             .bind(&subject.grade)
             .bind(&subject.term)
-            .fetch_one(&self.pg_pool)
+            .fetch_optional(&self.pg_pool)
             .await?;
 
         Ok(subjects)

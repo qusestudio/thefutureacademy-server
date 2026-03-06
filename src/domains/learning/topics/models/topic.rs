@@ -20,9 +20,24 @@ pub struct TopicNew {
 impl Topic {
     pub fn new(topic_new: TopicNew) -> Self {
         Self {
-            id: Uuid::new_v4().to_string(),
+            id: Uuid::now_v7().to_string(),
             subject_id: topic_new.subject_id,
             title: topic_new.title,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TopicViewedEvent {
+    pub user_id: String,
+    pub topic_title: String,
+}
+
+impl TopicViewedEvent {
+    pub fn new(user_id: &str, topic_title: &str) -> Self {
+        Self {
+            user_id: user_id.to_string(),
+            topic_title: topic_title.to_string(),
         }
     }
 }

@@ -1,3 +1,6 @@
+use actix_web::web::Data;
+use sqlx::PgPool;
+use std::sync::Arc;
 use crate::configuration::events::event_handlers_init;
 use crate::domains::billing::checkouts::repo::postgres_checkout_repo::PostgresCheckoutRepository;
 use crate::domains::billing::checkouts::service::checkouts_service::CheckoutsService;
@@ -5,7 +8,7 @@ use crate::domains::billing::payments::repo::postgres_payment_repo::PostgresPaym
 use crate::domains::billing::payments::service::payments_service::PaymentsService;
 use crate::domains::billing::subscription::repo::subscription_repository_pg::PostgresSubscriptionRepo;
 use crate::domains::billing::subscription::service::subscriptions_service::SubscriptionsService;
-use crate::domains::channel::events_channel_checker::EventsChannelChecker;
+use crate::infrastructure::channel::events_channel_checker::EventsChannelChecker;
 use crate::domains::enrollments::repo::postgres_enrollment_repo::PostgresEnrollmentRepo;
 use crate::domains::enrollments::service::enrollments_service::EnrollmentsService;
 use crate::domains::learning::lessons::repo::postgres_lesson_repo::PostgresLessonRepo;
@@ -26,14 +29,14 @@ use crate::domains::users::students::service::student_profiles_service::StudentP
 use crate::domains::users::students::service::students_service::StudentsService;
 use crate::infrastructure::database::postgres::{init_pool, run_migrations};
 use crate::infrastructure::event_bus::event_bus::{EventBus, init_bus};
-use actix_web::web::Data;
-use sqlx::PgPool;
-use std::sync::Arc;
 use crate::domains::allocations::repo::postgres_allocation_repo::PostgresAllocationRepo;
 use crate::domains::allocations::service::allocations_service::AllocationsService;
+use crate::infrastructure::analytics::repo::postgres_event_log_repo::PostgresEventLogRepository;
+use crate::infrastructure::analytics::service::analytics_service::AnalyticsService;
 
 #[derive(Clone)]
 pub struct AppState {
+    pub analytics: Data<AnalyticsService>,
     pub admins: Data<AdminsService>,
     pub health_check_service: Data<EventsChannelChecker>,
     pub students: Data<StudentsService>,
@@ -52,6 +55,12 @@ pub struct AppState {
 
 pub fn app_state(pg_pool: PgPool, event_bus: Data<EventBus>) -> AppState {
     AppState {
+        analytics: Data::new(AnalyticsService {
+            repo: Arc::new(PostgresEventLogRepository{
+                pg_pool: pg_pool.clone()
+            }),
+            event_bus: event_bus.clone(),
+        }),
         admins: Data::new(AdminsService {
             repo: Arc::new(PostgresAdminRepo {
                 pg_pool: pg_pool.clone(),

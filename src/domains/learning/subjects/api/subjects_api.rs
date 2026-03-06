@@ -20,9 +20,9 @@ pub async fn get_subject(
                 &user_id,
                 &id.clone()
             );
-            match state.subjects.repo.db_get_subject(&id.clone()).await {
+            match state.subjects.get_subject(&user_id, id.into_inner().as_str()).await {
                 Ok(subject) => Ok(HttpResponse::Ok().json(Json(subject))),
-                Err(_) => Ok(HttpResponse::NotFound().json("Subject not found")),
+                Err(e) => Ok(HttpResponse::NotFound().json(e.to_string())),
             }
         }
         Err(e) => Ok(HttpResponse::Unauthorized().json(e.to_string())),

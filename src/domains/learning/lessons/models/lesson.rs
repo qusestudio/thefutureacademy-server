@@ -26,11 +26,41 @@ pub struct LessonNew {
 impl Lesson {
     pub fn new(new: &LessonNew) -> Self {
         Self {
-            id: Uuid::new_v4().to_string(),
+            id: Uuid::now_v7().to_string(),
             topic_id: new.topic_id.clone(),
             video_id: new.video_id.clone(),
             title: new.title.clone(),
             description: new.description.clone(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LessonCreatedEvent {
+    pub user_id: String,
+    pub lesson_title: String,
+}
+
+impl LessonCreatedEvent {
+    pub fn new(user_id: &str, lesson_title: &str) -> Self {
+        Self {
+            user_id: user_id.to_string(),
+            lesson_title: lesson_title.to_string(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LessonOpenedEvent {
+    pub user_id: String,
+    pub lesson_title: String,
+}
+
+impl LessonOpenedEvent {
+    pub fn new(user_id: &str, lesson_title: &str) -> Self {
+        Self {
+            user_id: user_id.to_string(),
+            lesson_title: lesson_title.to_string(),
         }
     }
 }

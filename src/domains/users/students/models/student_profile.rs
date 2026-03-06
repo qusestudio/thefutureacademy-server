@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
@@ -37,4 +37,9 @@ impl StudentProfile {
             grade: profile_new.grade,
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StudentProfileCreatedEvent {
+    pub student_id: String,
 }

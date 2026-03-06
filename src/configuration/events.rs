@@ -1,10 +1,18 @@
 use std::sync::Arc;
 use actix_web::web::Data;
+use serde::{Deserialize, Serialize};
 use tokio::sync::broadcast::Sender;
 use crate::configuration::state::AppState;
 use crate::infrastructure::event_bus::event_bus::Event;
 
 pub async fn event_handlers_init(tx: Sender<Event>, state: Data<AppState>) {
+    // --- SPAWN ANALYTICS SUBSCRIBER ---
+    let analytics_service = Arc::new(state.analytics.clone());
+    let rx_analytics = tx.subscribe();
+    let analytics_clone = Arc::clone(&analytics_service);
+    tokio::spawn(async move {
+        analytics_clone.analytics_events_handler(rx_analytics).await;
+    });
     // --- SPAWN CHECKOUT SUBSCRIBER ---
     let checkout_service = Arc::new(state.checkouts.clone());
     let rx_checkout = tx.subscribe();
@@ -29,3 +37,4 @@ pub async fn event_handlers_init(tx: Sender<Event>, state: Data<AppState>) {
         subscription_clone.subscription_events_handler(rx_subscription).await;
     });
 }
+

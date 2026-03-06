@@ -1,8 +1,8 @@
 use actix_web::web;
 use crate::domains::allocations::api::allocations_api::{get_instructor_allocations, set_teaching_allocation};
 use crate::domains::billing::payments::api::payments_api::{create_yoco_checkout, get_checkout_by_student, payment_notification_webhook};
-use crate::domains::channel::health_api::send_test_event;
-use crate::domains::enrollments::enrollments_controller::{create_enrollment, get_enrollment, get_enrollment_for_subject_student, get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled};
+use crate::infrastructure::channel::health_api::send_test_event;
+use crate::domains::enrollments::api::enrollments_api::{create_enrollment, get_enrollment, get_enrollment_for_subject_student, get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled};
 use crate::domains::learning::lessons::api::lessons_api::{create_lesson, get_lesson, get_lessons_by_topic};
 use crate::domains::learning::subjects::api::subjects_api::{create_subject, delete_subjects, get_all_subjects, get_subject, get_subjects_by_grade, get_subjects_by_term, get_subjects_by_term_and_grade};
 use crate::domains::learning::topics::api::topics_api::{create_topic, delete_topics, get_topic, get_topics_by_subject};
