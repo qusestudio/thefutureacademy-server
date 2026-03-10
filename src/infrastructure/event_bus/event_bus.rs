@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use tokio::sync::broadcast;
+use crate::domains::allocations::models::allocation::InstructorAllocatedEvent;
 use crate::domains::billing::checkouts::models::checkouts_events::CheckoutCompletedEvent;
 use crate::domains::billing::payments::models::payment_events::PaymentCompletedEvent;
 use crate::domains::enrollments::models::enrollment::StudentEnrolledEvent;
@@ -22,13 +23,14 @@ pub enum Event {
     StudentProfileCreated(StudentProfileCreatedEvent),
     InstructorRegistered(InstructorRegisteredEvent),
     InstructorProfileCreated(InstructorProfileCreatedEvent),
+    // Classroom
+    StudentEnrolled(StudentEnrolledEvent),
+    InstructorAllocated(InstructorAllocatedEvent),
     // Learning
     SubjectViewed(SubjectViewedEvent),
     TopicViewed(TopicViewedEvent),
     LessonCreated(LessonCreatedEvent),
     LessonOpened(LessonOpenedEvent),
-    // Classroom
-    StudentEnrolled(StudentEnrolledEvent),
     // Payments
     PaymentCompleted(PaymentCompletedEvent),
     PaymentFailed,
@@ -58,6 +60,13 @@ impl Event {
             Event::InstructorProfileCreated(_) => {
                 String::from("instructor_profile.created")
             }
+            // Classroom
+            Event::StudentEnrolled(_) => {
+                String::from("student.enrolled")
+            }
+            Event::InstructorAllocated(_) => {
+                String::from("instructor.allocated")
+            }
             // Learning
             Event::SubjectViewed(_) => {
                 String::from("subject.viewed")
@@ -71,9 +80,7 @@ impl Event {
             Event::LessonOpened(_) => {
                 String::from("lesson.opened")
             }
-            Event::StudentEnrolled(_) => {
-                String::from("student.enrolled")
-            }
+            
             // billing
             Event::PaymentCompleted(_) => {
                 String::from("payment.completed")

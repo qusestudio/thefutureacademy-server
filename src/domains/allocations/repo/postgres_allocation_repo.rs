@@ -20,7 +20,15 @@ impl AllocationRepository for PostgresAllocationRepo {
         Ok(allocation)
     }
 
-    async fn db_get_allocations(&self, instructor_id: String) -> sqlx::Result<Vec<TeachingAllocation>> {
+    async fn db_get_all_allocations(&self) -> sqlx::Result<Vec<Allocation>> {
+        let allocations = sqlx::query_as("SELECT * FROM teaching_allocations ORDER BY created_at")
+            .fetch_all(&self.pg_pool)
+            .await?;
+        
+        Ok(allocations)
+    }
+
+    async fn db_get_instructor_allocations(&self, instructor_id: String) -> sqlx::Result<Vec<TeachingAllocation>> {
         let allocations = sqlx::query_as(
             "SELECT
                 i.cognito_id AS instructor_id,

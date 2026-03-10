@@ -1,8 +1,36 @@
+use crate::configuration::state::AppState;
 use crate::domains::users::instructors::models::instructor::{Instructor, InstructorNew};
 use crate::infrastructure::middleware::middleware::middleware;
 use actix_web::web::{Json, Path};
 use actix_web::{HttpRequest, HttpResponse, get, post, web};
-use crate::configuration::state::AppState;
+
+#[get("")]
+pub async fn get_all_instructors(
+    req: HttpRequest,
+    state: web::Data<AppState>,
+) -> actix_web::Result<HttpResponse> {
+    match middleware(req).await {
+        Ok(claims) => {
+            match claims.custom_role.as_str() {
+                "admin" => {
+                    match state.instructors.repo.db_get_all_instructors().await {
+                        Ok(instructors) => {
+                            log::info!("Admin user {} getting all instructors", claims.sub);
+                            Ok(HttpResponse::Ok().json(instructors))
+                        },
+                        Err(err) => {
+                            Ok(HttpResponse::InternalServerError().json(format!("{}", err)))
+                        }
+                    }
+                },
+                _ => Ok(HttpResponse::Forbidden().body("Access denied.")),
+            }
+        }
+        Err(err) => {
+            Ok(HttpResponse::Unauthorized().json(format!("{}", err)))
+        }
+    }
+}
 
 #[get("/{cognito_id}")]
 pub async fn get_instructor_by_cognito(

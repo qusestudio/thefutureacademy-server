@@ -8,6 +8,14 @@ pub struct PostgresInstructorRepo {
 
 #[async_trait::async_trait]
 impl InstructorRepository for PostgresInstructorRepo {
+    async fn db_get_all_instructors(&self) -> sqlx::Result<Vec<Instructor>> {
+        let instructors = sqlx::query_as("SELECT * FROM instructors")
+            .fetch_all(&self.pg_pool)
+            .await?;
+        
+        Ok(instructors)
+    }
+
     async fn db_get_instructor_by_cognito(&self, cognito_id: &String) -> sqlx::Result<Instructor, Error> {
         let instructor = sqlx::query_as("SELECT * FROM instructors WHERE cognito_id = $1")
             .bind(cognito_id)

@@ -20,7 +20,11 @@ pub async fn get_subject(
                 &user_id,
                 &id.clone()
             );
-            match state.subjects.get_subject(&user_id, id.into_inner().as_str()).await {
+            match state
+                .subjects
+                .get_subject(&user_id, id.into_inner().as_str())
+                .await
+            {
                 Ok(subject) => Ok(HttpResponse::Ok().json(Json(subject))),
                 Err(e) => Ok(HttpResponse::NotFound().json(e.to_string())),
             }
@@ -40,7 +44,10 @@ pub async fn get_all_subjects(
                 Ok(subjects) => Ok(HttpResponse::Ok().json(Json(subjects))),
                 Err(e) => Ok(HttpResponse::InternalServerError().json(format!("{:?}", e))),
             },
-            _ => Ok(HttpResponse::Forbidden().json("Not allowed")),
+            _ => {
+                log::info!("User role: {}", { claims.custom_role });
+                Ok(HttpResponse::Forbidden().json("Not allowed"))
+            }
         },
         Err(e) => Ok(HttpResponse::Unauthorized().json(format!("{}", e))),
     }

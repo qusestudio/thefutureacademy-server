@@ -16,7 +16,6 @@ pub struct Allocation {
 pub struct AllocationNew {
     pub subject_id: String,
     pub instructor_id: String,
-    pub created_at: DateTime<Utc>
 }
 
 #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
@@ -37,6 +36,19 @@ impl Allocation {
             subject_id: new_allocation.subject_id,
             instructor_id: new_allocation.instructor_id,
             created_at: Utc::now(),
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct InstructorAllocatedEvent {
+    pub instructor_id: String,
+}
+
+impl InstructorAllocatedEvent {
+    pub fn new(instructor_id: &str) -> Self {
+        Self {
+            instructor_id: instructor_id.to_string(),
         }
     }
 }

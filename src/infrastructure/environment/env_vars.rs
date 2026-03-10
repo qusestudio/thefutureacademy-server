@@ -6,7 +6,7 @@ pub struct EnvironmentVars {
     pub frontend_origin_admin: String,
     pub yoco_webhook_origin: String,
 }
-
+// todo: Implement the factory pattern so that only one object is used.
 impl EnvironmentVars {
     pub fn init() -> Self {
         let port = std::env::var("PORT").unwrap_or_else(|_| "8000".to_string())

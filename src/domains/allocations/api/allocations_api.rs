@@ -15,15 +15,10 @@ pub async fn set_teaching_allocation(
             // the admin person is the one setting this allocation
             match claims.custom_role.as_str() {
                 "admin" => {
-                    match state
-                        .allocations
-                        .repo
-                        .db_set_allocation(payload.into_inner())
-                        .await
+                    match state.allocations.allocate_instructor(payload.into_inner()).await
                     {
-                        Ok(allocation) => match allocation {
-                            Some(allocation) => Ok(HttpResponse::Ok().json(allocation)),
-                            None => Ok(HttpResponse::NotFound().finish()),
+                        Ok(allocation) =>  {
+                            Ok(HttpResponse::Ok().json(allocation))
                         },
                         Err(error) => {
                             Ok(HttpResponse::InternalServerError().json(error.to_string()))
@@ -37,6 +32,30 @@ pub async fn set_teaching_allocation(
     }
 }
 
+#[get("")]
+pub async fn get_all_allocations(
+    req: HttpRequest,
+    state: web::Data<AppState>
+) -> actix_web::Result<HttpResponse> {
+    match middleware(req).await {
+        Ok(claims) => {
+            match claims.custom_role.as_str() {
+                "admin" => {
+                    log::info!("Admin user {} getting allocations.", claims.sub);
+                    match state.allocations.get_all_allocations().await {
+                        Ok(allocations) => Ok(HttpResponse::Ok().json(allocations)),
+                        Err(error) => {
+                            Ok(HttpResponse::InternalServerError().json(error.to_string()))
+                        }
+                    }
+                },
+                _ => Ok(HttpResponse::Forbidden().body("Access denied.")),
+            }
+        },
+        Err(err) => Ok(HttpResponse::Unauthorized().json(format!("{}", err))),
+    }
+}
+
 #[get("/{instructor_id}/allocations")]
 pub async fn get_instructor_allocations(
     req: HttpRequest,
@@ -46,10 +65,7 @@ pub async fn get_instructor_allocations(
     match middleware(req).await {
         Ok(claims) => {
             log::info!("Admin {} getting instructor allocations for {}", claims.sub, &instructor_id);
-            match state
-                .allocations
-                .repo
-                .db_get_allocations(instructor_id.into_inner())
+            match state.allocations.get_instructor_allocations(instructor_id.into_inner().as_str())
                 .await
             {
                 Ok(allocations) => Ok(HttpResponse::Ok().json(allocations)),

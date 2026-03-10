@@ -1,5 +1,5 @@
 use actix_web::web;
-use crate::domains::allocations::api::allocations_api::{get_instructor_allocations, set_teaching_allocation};
+use crate::domains::allocations::api::allocations_api::{get_all_allocations, get_instructor_allocations, set_teaching_allocation};
 use crate::domains::billing::payments::api::payments_api::{create_yoco_checkout, get_checkout_by_student, payment_notification_webhook};
 use crate::infrastructure::channel::health_api::send_test_event;
 use crate::domains::enrollments::api::enrollments_api::{create_enrollment, get_enrollment, get_enrollment_for_subject_student, get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled};
@@ -8,7 +8,7 @@ use crate::domains::learning::subjects::api::subjects_api::{create_subject, dele
 use crate::domains::learning::topics::api::topics_api::{create_topic, delete_topics, get_topic, get_topics_by_subject};
 use crate::domains::users::admin::api::admins_api::{create_admin, get_admin_by_cognito};
 use crate::domains::users::instructors::api::instructor_profiles_api::{create_instructor_profile, get_instructor_profile};
-use crate::domains::users::instructors::api::instructors_api::{create_instructor, get_instructor_by_cognito};
+use crate::domains::users::instructors::api::instructors_api::{create_instructor, get_all_instructors, get_instructor_by_cognito};
 use crate::domains::users::students::api::student_profiles_api::{create_student_profile, get_student_profile_by_cognito};
 use crate::domains::users::students::api::students_api::{create_student, get_student_by_cognito};
 
@@ -41,6 +41,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             )
             .service(
                 web::scope("/instructors")
+                    .service(get_all_instructors)
                     .service(get_instructor_by_cognito)
                     .service(create_instructor)
                     .service(get_instructor_allocations)
@@ -67,7 +68,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             )
             .service(
                 web::scope("/allocations")
-                    .service(set_teaching_allocation),
+                    .service(set_teaching_allocation)
+                    .service(get_all_allocations),
             )
             .service(
                 web::scope("/topics")
