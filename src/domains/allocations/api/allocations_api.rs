@@ -64,12 +64,20 @@ pub async fn get_instructor_allocations(
 ) -> actix_web::Result<HttpResponse> {
     match middleware(req).await {
         Ok(claims) => {
-            log::info!("Admin {} getting instructor allocations for {}", claims.sub, &instructor_id);
-            match state.allocations.get_instructor_allocations(instructor_id.into_inner().as_str())
-                .await
-            {
-                Ok(allocations) => Ok(HttpResponse::Ok().json(allocations)),
-                Err(error) => Ok(HttpResponse::InternalServerError().json(error.to_string())),
+            log::info!("User {} getting instructor allocations for {}", claims.sub, &instructor_id);
+            match claims.custom_role.as_str() {
+                "admin" | "instructor" => {
+                    match state.allocations.get_instructor_allocations(instructor_id.into_inner().as_str())
+                        .await
+                    {
+                        Ok(allocations) => {
+                            log::info!("No. of results: {}", allocations.len());
+                            Ok(HttpResponse::Ok().json(allocations))
+                        },
+                        Err(error) => Ok(HttpResponse::InternalServerError().json(error.to_string())),
+                    }
+                }
+                _ => Ok(HttpResponse::Forbidden().body("Access denied.")),
             }
         }
         Err(err) => Ok(HttpResponse::Unauthorized().json(format!("{}", err))),

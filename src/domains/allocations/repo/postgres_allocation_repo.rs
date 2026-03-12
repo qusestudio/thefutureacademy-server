@@ -40,7 +40,7 @@ impl AllocationRepository for PostgresAllocationRepo {
             FROM
                 instructors i
                     INNER JOIN
-                enrollments e ON i.cognito_id = e.student_id
+                teaching_allocations e ON i.cognito_id = e.instructor_id
                     INNER JOIN
                 subjects sub ON e.subject_id = sub.id
             WHERE
