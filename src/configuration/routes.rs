@@ -11,11 +11,17 @@ use crate::domains::users::instructors::api::instructor_profiles_api::{create_in
 use crate::domains::users::instructors::api::instructors_api::{create_instructor, get_all_instructors, get_instructor_by_cognito};
 use crate::domains::users::students::api::student_profiles_api::{create_student_profile, get_student_profile_by_cognito};
 use crate::domains::users::students::api::students_api::{create_student, get_student_by_cognito};
+use crate::infrastructure::analytics::api::analytics_api::{get_no_of_instructors, get_no_of_students};
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api/v1")
             .service(send_test_event)
+            .service(
+                web::scope("/analytics")
+                    .service(get_no_of_students)
+                    .service(get_no_of_instructors)
+            )
             .service(
                 web::scope("/payments")
                     .service(create_yoco_checkout)

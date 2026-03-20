@@ -31,7 +31,7 @@ use crate::infrastructure::database::postgres::{init_pool, run_migrations};
 use crate::infrastructure::event_bus::event_bus::{EventBus, init_bus};
 use crate::domains::allocations::repo::postgres_allocation_repo::PostgresAllocationRepo;
 use crate::domains::allocations::service::allocations_service::AllocationsService;
-use crate::infrastructure::analytics::repo::postgres_event_log_repo::PostgresEventLogRepository;
+use crate::infrastructure::analytics::repo::postgres_analytics_repo::{PostgresAnalyticsRepository};
 use crate::infrastructure::analytics::service::analytics_service::AnalyticsService;
 
 #[derive(Clone)]
@@ -56,7 +56,7 @@ pub struct AppState {
 pub fn app_state(pg_pool: PgPool, event_bus: Data<EventBus>) -> AppState {
     AppState {
         analytics: Data::new(AnalyticsService {
-            repo: Arc::new(PostgresEventLogRepository{
+            repo: Arc::new(PostgresAnalyticsRepository{
                 pg_pool: pg_pool.clone()
             }),
             event_bus: event_bus.clone(),

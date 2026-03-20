@@ -3,16 +3,29 @@ use actix_web::web::Data;
 use std::sync::Arc;
 use crate::infrastructure::event_bus::event_bus::{Event, EventBus};
 use crate::infrastructure::analytics::models::event_log::EventLog;
-use crate::infrastructure::analytics::repo::event_log_repo::EventLogRepository;
+
 use tokio::sync::broadcast::Receiver;
 use uuid::Uuid;
+use crate::infrastructure::analytics::repo::analytics_repo::AnalyticsRepository;
 
 pub struct AnalyticsService {
-    pub repo: Arc<dyn EventLogRepository + Send + Sync>,
+    pub repo: Arc<dyn AnalyticsRepository + Send + Sync>,
     pub event_bus: Data<EventBus>,
 }
 
 impl AnalyticsService {
+    pub async fn instructors_registered(&self) -> sqlx::Result<u64, Error> {
+        match self.repo.instructors_registered().await {
+            Ok(no_of_instructors) => Ok(no_of_instructors),
+            Err(e) => Err(Error::other(e.to_string()))
+        }
+    }
+    pub async fn students_registered(&self) -> Result<u64, Error> {
+        match self.repo.students_registered().await { 
+            Ok(no_of_students) => Ok(no_of_students),
+            Err(e) => Err(Error::other(e.to_string()))
+        }
+    }
     pub async fn students_enrolled(&self) -> Result<u64, Error> {
         match self.repo.event_frequency("student.enrolled").await {
             Ok(count) => Ok(count),

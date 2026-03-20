@@ -1,2 +1,2 @@
-pub mod event_log_repo;
-pub mod postgres_event_log_repo;
+pub mod analytics_repo;
+pub mod postgres_analytics_repo;
