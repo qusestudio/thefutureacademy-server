@@ -5,6 +5,8 @@ use sqlx::FromRow;
 pub struct Subject {
     pub id: String,
     pub title: String,
+    pub image: String,
+    pub description: Vec<String>,
     pub grade: i32,
     pub term: i32
 }
@@ -12,6 +14,8 @@ pub struct Subject {
 #[derive(Deserialize)]
 pub struct SubjectNew {
     pub title: String,
+    pub image: String,
+    pub description: Vec<String>,
     pub grade: i32,
     pub term: i32
 }
@@ -22,6 +26,8 @@ impl Subject {
         Subject {
             id,
             title: subject_new.title.clone(),
+            image: subject_new.image.clone(),
+            description: subject_new.description.clone(),
             grade: subject_new.grade,
             term: subject_new.term
         }
