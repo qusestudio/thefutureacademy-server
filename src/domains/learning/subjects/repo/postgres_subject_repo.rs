@@ -60,9 +60,11 @@ impl SubjectRepository for PostgresSubjectRepo {
     async fn db_create_subject(&self, subject_new: &SubjectNew) -> sqlx::Result<Option<Subject>, Error> {
         let subject = Subject::new(subject_new);
         let subjects = sqlx::query_as(
-            "INSERT INTO subjects (id,  title, grade, term) VALUES ($1, $2, $3, $4) RETURNING *")
+            "INSERT INTO subjects (id,  title, image, description, grade, term) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *")
             .bind(&subject.id)
             .bind(&subject.title)
+            .bind(&subject.image)
+            .bind(&subject.description)
             .bind(&subject.grade)
             .bind(&subject.term)
             .fetch_optional(&self.pg_pool)
