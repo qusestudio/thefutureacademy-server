@@ -8,6 +8,7 @@ pub struct Topic {
     #[serde(rename = "subjectId")]
     pub subject_id: String,
     pub title: String,
+    pub description: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -15,6 +16,7 @@ pub struct TopicNew {
     #[serde(rename = "subjectId")]
     pub subject_id: String,
     pub title: String,
+    pub description: String,
 }
 
 impl Topic {
@@ -23,6 +25,7 @@ impl Topic {
             id: Uuid::now_v7().to_string(),
             subject_id: topic_new.subject_id,
             title: topic_new.title,
+            description: topic_new.description,
         }
     }
 }

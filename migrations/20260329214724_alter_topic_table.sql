@@ -1,0 +1,3 @@
+-- Add migration script here
+ALTER TABLE topics
+ADD COLUMN description TEXT;

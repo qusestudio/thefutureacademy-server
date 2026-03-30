@@ -29,11 +29,12 @@ impl TopicRepository for PostgresTopicRepo {
     async fn db_create_topic(&self, topic_new: TopicNew) -> sqlx::Result<Topic, Error> {
         let topic = Topic::new(topic_new);
         let topic = sqlx::query_as(
-            "INSERT INTO topics (id, subject_id, title ) VALUES($1, $2, $3) RETURNING *",
+            "INSERT INTO topics (id, subject_id, title, description ) VALUES($1, $2, $3, $4) RETURNING *",
         )
         .bind(&topic.id)
         .bind(&topic.subject_id)
         .bind(&topic.title)
+        .bind(&topic.description)
         .fetch_one(&self.pg_pool)
         .await?;
 
