@@ -6,8 +6,10 @@ pub fn build_cors() -> Cors {
     let ev = EnvironmentVars::init();
     Cors::default()
         .allowed_origin(&ev.frontend_origin)
-        .allowed_origin(&ev.frontend_origin_admin)
         .allowed_origin(&ev.yoco_webhook_origin)
+        .allowed_origin(&ev.studio)
+        .allowed_origin(&ev.space)
+        .allowed_origin(&ev.instructors)
         .allowed_methods(["GET", "POST", "DELETE"])
         .allowed_headers([header::AUTHORIZATION, header::CONTENT_TYPE])
         .supports_credentials()
