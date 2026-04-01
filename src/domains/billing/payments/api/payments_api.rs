@@ -108,7 +108,7 @@ pub async fn payment_notification_webhook(
     req: HttpRequest,
     payload: actix_web::Result<Json<YocoPaymentNotification>>,
 ) -> actix_web::Result<HttpResponse> {
-    log::info!("Receiving payment notification");
+    log::error!("Receiving payment notification");
 
     // Handle deserialization errors
     let payload = match payload {
