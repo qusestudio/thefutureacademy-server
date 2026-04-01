@@ -73,7 +73,10 @@ pub async fn get_subjects_by_grade(
                 .await
             {
                 Ok(subjects) => Ok(HttpResponse::Ok().json(Json(subjects))),
-                Err(_) => Ok(HttpResponse::NotFound().json("Subjects not found")),
+                Err(e) => {
+                    log::error!("Error getting subjects: {}", e);
+                    Ok(HttpResponse::NotFound().json("Subjects not found"))
+                },
             }
         }
         Err(e) => Ok(HttpResponse::Unauthorized().json(e.to_string())),
