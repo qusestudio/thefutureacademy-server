@@ -25,6 +25,7 @@ pub struct TeachingAllocation {
     pub instructor_name: String,
     pub subject_id: String,
     pub subject_title: String,
+    pub subject_image: String,
     pub grade: i32,
     pub term: i32,
 }

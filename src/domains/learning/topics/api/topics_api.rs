@@ -51,7 +51,10 @@ pub async fn get_topics_by_subject(
                 .await
             {
                 Ok(topics) => Ok(HttpResponse::Ok().json(Json(topics))),
-                Err(_) => Ok(HttpResponse::NotFound().json("Topics not found")),
+                Err(e) => {
+                    log::error!("Error getting topics: {}", e);
+                    Ok(HttpResponse::NotFound().json("Topics not found"))
+                },
             }
         }
         Err(e) => Ok(HttpResponse::Unauthorized().json(e.to_string())),

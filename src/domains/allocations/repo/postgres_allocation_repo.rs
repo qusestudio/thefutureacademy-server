@@ -1,3 +1,4 @@
+use sqlx::Error;
 use crate::domains::allocations::models::allocation::{Allocation, AllocationNew, TeachingAllocation};
 use crate::domains::allocations::repo::allocation_repo::AllocationRepository;
 
@@ -35,6 +36,7 @@ impl AllocationRepository for PostgresAllocationRepo {
                 i.name AS instructor_name,
                 sub.id AS subject_id,
                 sub.title AS subject_title,
+                sub.image AS subject_image,
                 sub.grade,
                 sub.term
             FROM
@@ -51,5 +53,15 @@ impl AllocationRepository for PostgresAllocationRepo {
             .fetch_all(&self.pg_pool)
             .await?;
         Ok(allocations)
+    }
+
+    async fn db_delete_allocations(&self, ids: Vec<String>) -> sqlx::Result<u64, Error> {
+        log::warn!("Deleting allocations: {:?}", ids);
+        let result = sqlx::query("DELETE FROM teaching_allocations WHERE id = ANY($1)")
+            .bind(&ids)
+            .execute(&self.pg_pool)
+            .await?;
+
+        Ok(result.rows_affected())
     }
 }

@@ -54,10 +54,16 @@ pub async fn get_enrollments_by_student(
                 .await
             {
                 Ok(enrollments) => Ok(HttpResponse::Ok().json(Json(enrollments))),
-                Err(e) => Ok(HttpResponse::NotFound().json(e.to_string())),
+                Err(e) => {
+                    log::error!("Error getting enrollments for student: {}", e);
+                    Ok(HttpResponse::NotFound().json(e.to_string()))
+                },
             }
         }
-        Err(e) => Ok(HttpResponse::Unauthorized().json(e.to_string())),
+        Err(e) => {
+            log::error!("Error getting enrollments for student: {}", e);
+            Ok(HttpResponse::Unauthorized().json(e.to_string()))
+        },
     }
 }
 

@@ -29,6 +29,7 @@ impl EnrollmentRepository for PostgresEnrollmentRepo {
                 s.name AS student_name,
                 sub.id AS subject_id,
                 sub.title AS subject_title,
+                sub.image AS subject_image,
                 sub.grade,
                 sub.term
             FROM

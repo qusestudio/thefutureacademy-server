@@ -1,5 +1,6 @@
 use actix_web::web;
-use crate::domains::allocations::api::allocations_api::{get_all_allocations, get_instructor_allocations, set_teaching_allocation};
+use actix_web::web::service;
+use crate::domains::allocations::api::allocations_api::{delete_allocations, get_all_allocations, get_instructor_allocations, set_teaching_allocation};
 use crate::domains::billing::payments::api::payments_api::{create_yoco_checkout, get_checkout_by_student, payment_notification_webhook};
 use crate::infrastructure::channel::health_api::send_test_event;
 use crate::domains::enrollments::api::enrollments_api::{create_enrollment, get_enrollment, get_enrollment_for_subject_student, get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled};
@@ -75,7 +76,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .service(
                 web::scope("/allocations")
                     .service(set_teaching_allocation)
-                    .service(get_all_allocations),
+                    .service(get_all_allocations)
+                    .service(delete_allocations),
             )
             .service(
                 web::scope("/topics")

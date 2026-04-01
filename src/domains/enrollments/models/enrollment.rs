@@ -40,6 +40,8 @@ pub struct StudentEnrollment {
     pub subject_id: String,
     #[serde(rename = "subjectTitle")]
     pub subject_title: String,
+    #[serde(rename = "subjectImage")]
+    pub subject_image: String,
     pub grade: i32,
     pub term: i32,
 }

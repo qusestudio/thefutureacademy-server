@@ -26,7 +26,10 @@ pub async fn get_subject(
                 .await
             {
                 Ok(subject) => Ok(HttpResponse::Ok().json(Json(subject))),
-                Err(e) => Ok(HttpResponse::NotFound().json(e.to_string())),
+                Err(e) => {
+                    log::error!("Error getting subject: {}", e);
+                    Ok(HttpResponse::NotFound().json(e.to_string()))
+                },
             }
         }
         Err(e) => Ok(HttpResponse::Unauthorized().json(e.to_string())),
