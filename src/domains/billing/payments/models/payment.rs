@@ -7,7 +7,6 @@ use sqlx::FromRow;
 pub struct Payment {
     pub id: String,
     pub checkout_id: String,
-    pub subscription_id: String,
     pub amount_received: i64,
     pub currency: String,
     /** Gateway (Yoco) Payment ID */
@@ -19,7 +18,6 @@ pub struct Payment {
 #[serde(rename_all = "camelCase")]
 pub struct PaymentNew {
     pub checkout_id: String,
-    pub subscription_id: String,
     pub amount_received: i64,
     pub currency: String,
     /** Gateway (Yoco) Payment ID */

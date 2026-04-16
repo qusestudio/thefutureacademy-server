@@ -1,9 +1,10 @@
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SubscriptionActivatedEvent {
-    pub subscription_id: String,
     pub student_id: String,
-    pub activated_at: DateTime<Utc>,
+    pub status: String,
 }
 
 pub struct SubscriptionExpiredEvent {

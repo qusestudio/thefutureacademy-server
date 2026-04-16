@@ -26,6 +26,7 @@ pub struct CheckoutFromDB {
 }
 
 pub struct CheckoutNew {
+    pub id: String,
     pub student_id: String,
     pub plan_id: String,
     pub status: CheckoutStatus,
@@ -35,7 +36,7 @@ pub struct CheckoutNew {
 impl Checkout {
     pub fn new(new_ckt: &CheckoutNew) -> Self {
         Self {
-            id: Uuid::now_v7().to_string(),
+            id: new_ckt.id.clone(),
             student_id: new_ckt.student_id.clone(),
             plan_id: new_ckt.plan_id.clone(),
             status: new_ckt.status.clone(),

@@ -3,6 +3,7 @@ use tokio::sync::broadcast;
 use crate::domains::allocations::models::allocation::InstructorAllocatedEvent;
 use crate::domains::billing::checkouts::models::checkouts_events::CheckoutCompletedEvent;
 use crate::domains::billing::payments::models::payment_events::PaymentCompletedEvent;
+use crate::domains::billing::subscriptions::models::subscription_events::SubscriptionActivatedEvent;
 use crate::domains::enrollments::models::enrollment::StudentEnrolledEvent;
 use crate::domains::learning::lessons::models::lesson::{LessonCreatedEvent, LessonOpenedEvent};
 use crate::domains::learning::subjects::models::subject::SubjectViewedEvent;
@@ -35,7 +36,7 @@ pub enum Event {
     PaymentCompleted(PaymentCompletedEvent),
     PaymentFailed,
     // Subscriptions
-    SubscriptionActivated,
+    SubscriptionActivated(SubscriptionActivatedEvent),
     SubscriptionExpired,
     // Checkout Events
     CheckoutCompleted(CheckoutCompletedEvent)
@@ -88,7 +89,7 @@ impl Event {
             Event::PaymentFailed => {
                 String::from("payment.failed")
             }
-            Event::SubscriptionActivated => {
+            Event::SubscriptionActivated(_) => {
                 String::from("subscription.activated")
             }
             Event::SubscriptionExpired => {

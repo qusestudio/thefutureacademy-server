@@ -132,8 +132,7 @@ pub async fn payment_notification_webhook(
                     let payment = Payment {
                         id: Uuid::now_v7().to_string(),
                         checkout_id: checkout_id.clone(),
-                        subscription_id: "".to_string(),
-                        amount_received: 0,
+                        amount_received: payload.payload.amount,
                         currency: "ZAR".to_string(),
                         transaction_id: payload.payload.id.clone(),
                         created_at: Utc::now(),

@@ -7,5 +7,6 @@ pub struct CheckoutCreatedEvent {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CheckoutCompletedEvent {
+    pub student_id: String,
     pub checkout_id: String,
 }

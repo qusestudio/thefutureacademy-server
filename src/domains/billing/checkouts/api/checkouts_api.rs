@@ -28,6 +28,7 @@ pub async fn create_yoco_checkout(
                                     log::info!("Creating checkout on our servers");
                                     // TODO: send this from the client
                                     let checkout_new = CheckoutNew {
+                                        id: yoco_response.id.clone(),
                                         student_id: claims.sub,
                                         plan_id: sub.plan_id.clone(),
                                         status: CheckoutStatus::Pending,

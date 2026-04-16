@@ -29,8 +29,11 @@ impl CheckoutsService {
                             notification.checkout_id.as_str(),
                         )
                         .await;
+                    
+                    let checkout = self.repo.get_checkout(notification.checkout_id.as_str()).await.unwrap();
 
                     let checkout_completed = CheckoutCompletedEvent{
+                        student_id: checkout.student_id,
                         checkout_id: notification.checkout_id
                     };
 
