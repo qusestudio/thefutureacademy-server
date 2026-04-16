@@ -5,6 +5,29 @@ use jsonwebtoken::{Algorithm, DecodingKey, Validation, decode};
 use std::io::Error;
 
 pub async fn verify_token(token: &str) -> Result<JWTClaims, jsonwebtoken::errors::Error> {
+    #[cfg(test)]
+    if token.starts_with("test.") {
+        println!("TEST BYPASS HIT: {}", token);
+        let parts: Vec<&str> = token.split('.').collect();
+        // format: "test.admin.user-id" or "test.user.user-id"
+        return Ok(JWTClaims {
+            sub: parts.get(2).unwrap_or(&"test-user-id").to_string(),
+            custom_role: parts.get(1).unwrap_or(&"user").to_string(),
+            email: "test@test.com".to_string(),
+            cognito_username: "test-user".to_string(),
+            email_verified: true,
+            iss: "test-issuer".to_string(),
+            aud: "test-audience".to_string(),
+            token_use: "id".to_string(),
+            auth_time: 0,
+            exp: 9999999999,
+            iat: 0,
+            jti: "test-jti".to_string(),
+            origin_jti: "test-origin-jti".to_string(),
+            event_id: "test-event-id".to_string(),
+        });
+    }
+
     let url = std::env::var("AWS_COGNITO_JWK_JSON")
         .expect("AWS_COGNITO_JWK_JSON not set or can't be read correctly"); // Update this URL
 
@@ -46,13 +69,16 @@ pub async fn middleware(req: HttpRequest) -> actix_web::Result<JWTClaims, Error>
         .and_then(|t| t.to_str().ok())
     {
         Some(auth_header) => match auth_header.strip_prefix("Bearer ") {
-            Some(token) => match verify_token(token).await {
-                Ok(decoded_token) => Ok(decoded_token),
-                Err(e) => match e.kind() {
-                    ExpiredSignature => Err(Error::other("The token is expired")),
-                    _ => Err(Error::other("Error with the provided token")),
-                },
-            },
+            Some(token) => {
+                println!("TOKEN RECEIVED: {:?}", token);
+                match verify_token(token).await {
+                    Ok(decoded_token) => Ok(decoded_token),
+                    Err(e) => match e.kind() {
+                        ExpiredSignature => Err(Error::other("The token is expired")),
+                        _ => Err(Error::other("Error with the provided token")),
+                    },
+                }
+            }
             None => Err(Error::other("Token not found")),
         },
         None => Err(Error::other("Authorization header not set")),

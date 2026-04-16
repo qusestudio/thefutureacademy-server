@@ -20,7 +20,8 @@ impl PaymentsService {
     pub async fn make_payment(
         checkout_request: YocoCheckoutRequest,
     ) -> Result<reqwest::Response, Box<dyn Error>> { // Changed to Box<dyn Error> to allow custom error messages
-        let url = "https://payments.yoco.com/api/checkouts";
+        let url = std::env::var("PAYMENT_GATEWAY_URL")
+            .unwrap_or_else(|_| "https://payments.yoco.com/api/checkouts".to_string());
 
         // Tip: Use a single variable name like "PAYMENT_TOKEN" and just swap the actual
         // key in your .env file rather than hardcoding "TEST" or "LIVE" in the Rust code.

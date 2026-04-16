@@ -1,7 +1,10 @@
 use actix_web::web;
 use actix_web::web::service;
 use crate::domains::allocations::api::allocations_api::{delete_allocations, get_all_allocations, get_instructor_allocations, set_teaching_allocation};
-use crate::domains::billing::payments::api::payments_api::{create_yoco_checkout, get_checkout_by_student, payment_notification_webhook};
+use crate::domains::billing::checkouts::api::checkouts_api::create_yoco_checkout;
+use crate::domains::billing::payments::api::payments_api::{get_checkout_by_student, payment_notification_webhook};
+use crate::domains::billing::plans::api::plans_api::{create_plan, get_plan, get_plan_by_grade, get_plans};
+use crate::domains::billing::subscriptions::api::subscriptions_api::{create_subscription, get_subscription_by_student_id};
 use crate::infrastructure::channel::health_api::send_test_event;
 use crate::domains::enrollments::api::enrollments_api::{create_enrollment, get_enrollment, get_enrollment_for_subject_student, get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled};
 use crate::domains::learning::lessons::api::lessons_api::{create_lesson, get_lesson, get_lessons_by_topic};
@@ -24,9 +27,22 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                     .service(get_no_of_instructors)
             )
             .service(
+                web::scope("/plans")
+                    .service(create_plan)
+                    .service(get_plan)
+                    .service(get_plans)
+            )
+            .service(
                 web::scope("/payments")
-                    .service(create_yoco_checkout)
                     .service(payment_notification_webhook),
+            )
+            .service(
+                web::scope("/checkouts")
+                    .service(create_yoco_checkout),
+            )
+            .service(
+                web::scope("/subscriptions")
+                    .service(create_subscription),
             )
             .service(
                 web::scope("/admins")
@@ -39,6 +55,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                     .service(create_student)
                     .service(get_enrollments_by_student)
                     .service(get_not_enrolled)
+                    .service(get_subscription_by_student_id)
                     .service(get_checkout_by_student),
             )
             .service(
@@ -94,7 +111,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .service(
                 web::scope("/grades")
                     .service(get_subjects_by_grade)
-                    .service(get_subjects_by_term_and_grade),
+                    .service(get_subjects_by_term_and_grade)
+                    .service(get_plan_by_grade),
             )
             .service(web::scope("/terms").service(get_subjects_by_term))
     );

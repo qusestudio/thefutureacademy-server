@@ -1,5 +1,6 @@
 use crate::domains::users::students::models::student_profile::{StudentProfile, StudentProfileNew};
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait StudentProfileRepository {
     async fn db_get_student_profile(&self, cognito_id: &String) -> sqlx::Result<Option<StudentProfile>, sqlx::Error>;

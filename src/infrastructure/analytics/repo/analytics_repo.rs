@@ -1,6 +1,7 @@
 use crate::infrastructure::analytics::models::event_log::EventLog;
 use crate::infrastructure::event_bus::event_bus::Event;
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait AnalyticsRepository {
     async fn instructors_registered(&self) -> sqlx::Result<u64>;

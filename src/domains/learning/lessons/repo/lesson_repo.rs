@@ -1,5 +1,6 @@
 use crate::domains::learning::lessons::models::lesson::{Lesson, LessonNew};
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait LessonRepository {
     async fn db_get_lesson(&self, id: &str) -> sqlx::Result<Option<Lesson>, sqlx::Error>;

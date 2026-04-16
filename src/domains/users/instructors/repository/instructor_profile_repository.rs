@@ -2,6 +2,7 @@ use crate::domains::users::instructors::models::instructor_profile::{
     InstructorProfile, InstructorProfileNew,
 };
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait InstructorProfileRepository {
     async fn create_instructor_profile(

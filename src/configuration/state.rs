@@ -6,8 +6,8 @@ use crate::domains::billing::checkouts::repo::postgres_checkout_repo::PostgresCh
 use crate::domains::billing::checkouts::service::checkouts_service::CheckoutsService;
 use crate::domains::billing::payments::repo::postgres_payment_repo::PostgresPaymentRepo;
 use crate::domains::billing::payments::service::payments_service::PaymentsService;
-use crate::domains::billing::subscription::repo::subscription_repository_pg::PostgresSubscriptionRepo;
-use crate::domains::billing::subscription::service::subscriptions_service::SubscriptionsService;
+use crate::domains::billing::subscriptions::repo::subscription_repository_pg::PostgresSubscriptionRepo;
+use crate::domains::billing::subscriptions::service::subscriptions_service::SubscriptionsService;
 use crate::infrastructure::channel::events_channel_checker::EventsChannelChecker;
 use crate::domains::enrollments::repo::postgres_enrollment_repo::PostgresEnrollmentRepo;
 use crate::domains::enrollments::service::enrollments_service::EnrollmentsService;
@@ -31,6 +31,8 @@ use crate::infrastructure::database::postgres::{init_pool, run_migrations};
 use crate::infrastructure::event_bus::event_bus::{EventBus, init_bus};
 use crate::domains::allocations::repo::postgres_allocation_repo::PostgresAllocationRepo;
 use crate::domains::allocations::service::allocations_service::AllocationsService;
+use crate::domains::billing::plans::repo::postgres_plan_repo::PostgresPlanRepo;
+use crate::domains::billing::plans::service::plans_service::PlansService;
 use crate::infrastructure::analytics::repo::postgres_analytics_repo::{PostgresAnalyticsRepository};
 use crate::infrastructure::analytics::service::analytics_service::AnalyticsService;
 
@@ -50,6 +52,7 @@ pub struct AppState {
     pub allocations: Data<AllocationsService>,
     pub checkouts: Data<CheckoutsService>,
     pub payments: Data<PaymentsService>,
+    pub plans: Data<PlansService>,
     pub subscriptions: Data<SubscriptionsService>,
 }
 
@@ -132,6 +135,12 @@ pub fn app_state(pg_pool: PgPool, event_bus: Data<EventBus>) -> AppState {
         }),
         payments: Data::new(PaymentsService {
             repo: Arc::new(PostgresPaymentRepo {
+                pg_pool: pg_pool.clone(),
+            }),
+            event_bus: event_bus.clone(),
+        }),
+        plans: Data::new(PlansService {
+            repo: Arc::new(PostgresPlanRepo {
                 pg_pool: pg_pool.clone(),
             }),
             event_bus: event_bus.clone(),

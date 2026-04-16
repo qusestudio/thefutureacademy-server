@@ -1,5 +1,6 @@
 use crate::domains::allocations::models::allocation::{Allocation, AllocationNew, TeachingAllocation};
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait AllocationRepository {
     async fn db_set_allocation(&self, new_allocation: AllocationNew) -> sqlx::Result<Option<Allocation>>;

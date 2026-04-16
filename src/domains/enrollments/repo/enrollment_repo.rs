@@ -1,5 +1,6 @@
 use crate::domains::enrollments::models::enrollment::{AvailableSubject, Enrollment, EnrollmentNew, StudentEnrollment};
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait EnrollmentRepository {
     async fn db_get_enrollment(&self, id: &str) -> sqlx::Result<Option<Enrollment>, sqlx::Error>;

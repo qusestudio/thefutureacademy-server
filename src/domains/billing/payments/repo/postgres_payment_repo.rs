@@ -11,15 +11,16 @@ impl PaymentRepository for PostgresPaymentRepo {
     async fn create_payment(&self, payment: Payment) -> sqlx::Result<Option<Payment>, Error> {
         let payment = sqlx::query_as(
             "
-            INSERT INTO payments (payment_id, checkout_id, status, created_at, updated_at) 
-            VALUES ($1, $2, $3, $4, $5) 
+            INSERT INTO payments (payment_id, checkout_id, subscription_id, amount_received, transaction_id, created_at) 
+            VALUES ($1, $2, $3, $4, $5, $6) 
             RETURNING *",
         )
-        .bind(payment.payment_id)
+        .bind(payment.id)
         .bind(payment.checkout_id)
-        .bind(payment.status)
+        .bind(payment.subscription_id)
+        .bind(payment.amount_received)
+        .bind(payment.transaction_id)
         .bind(payment.created_at)
-        .bind(payment.updated_at)
         .fetch_optional(&self.pg_pool)
         .await?;
 

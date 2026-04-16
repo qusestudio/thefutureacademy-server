@@ -1,6 +1,7 @@
 use sqlx::Error;
 use crate::domains::learning::topics::models::topic::{Topic, TopicNew};
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait TopicRepository {
     async fn db_get_topic(&self, id: &str) -> sqlx::Result<Option<Topic>, Error>;

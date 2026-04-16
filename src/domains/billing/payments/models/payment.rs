@@ -5,15 +5,24 @@ use sqlx::FromRow;
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct Payment {
-    pub payment_id: String, // from yoco
+    pub id: String,
     pub checkout_id: String,
-    pub status: String,
+    pub subscription_id: String,
+    pub amount_received: i64,
+    pub currency: String,
+    /** Gateway (Yoco) Payment ID */
+    pub transaction_id: String,
     pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
 }
 
-pub enum PaymentStatus {
-    Pending,
-    Succeeded,
-    Failed,
+#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct PaymentNew {
+    pub checkout_id: String,
+    pub subscription_id: String,
+    pub amount_received: i64,
+    pub currency: String,
+    /** Gateway (Yoco) Payment ID */
+    pub transaction_id: String,
+    pub created_at: DateTime<Utc>,
 }
