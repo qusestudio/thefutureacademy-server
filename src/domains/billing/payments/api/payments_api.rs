@@ -129,7 +129,7 @@ pub async fn payment_notification_webhook(
                 // TODO: Something has to shift here a little. Since our checkout ID
                 // TODO: now is a v7 uuid not the one from yoco.
                 Some(checkout_id) => {
-                    
+
                     let payment = Payment {
                         id: Uuid::now_v7().to_string(),
                         checkout_id: checkout_id.clone(),
@@ -139,12 +139,30 @@ pub async fn payment_notification_webhook(
                         created_at: Utc::now(),
                     };
 
+
+                    let payment_completed = PaymentCompletedEvent{
+                        checkout_id: checkout_id.clone(),
+                    };
+                    log::info!("Broadcasting payment event: {:?}", payment);
+                    if let Err(e) = service
+                        .payments
+                        .event_bus
+                        .send(Event::PaymentCompleted(payment_completed)) {
+                        log::error!("Failed to send payment completed: {}", e);
+                    };
+
+                    log::info!("Recording payment in our servers: {:?}", payment);
                     match service.payments.repo.create_payment(payment).await {
                         Ok(payment) => match payment {
-                            None => Ok(HttpResponse::NotFound().json(
-                                "Could not return payment record, might not be created at all.",
-                            )),
+                            None => {
+                                log::error!("Payment record not created or not returned!");
+                                Ok(HttpResponse::NotFound().json(
+                                    "Could not return payment record, might not be created at all.",
+                                ))
+                            },
                             Some(payment) => {
+                                log::info!("Payment record created: {:?}", payment);
+
                                 let payment_completed = PaymentCompletedEvent{
                                     checkout_id: payment.checkout_id,
                                 };
@@ -159,7 +177,10 @@ pub async fn payment_notification_webhook(
                                 Ok(HttpResponse::Ok().finish())
                             },
                         },
-                        Err(error) => Ok(HttpResponse::NotFound().json(error.to_string())),
+                        Err(error) => {
+                            log::error!("Payment not returned for some reason. {:?}", error);
+                            Ok(HttpResponse::NotFound().json(error.to_string()))
+                        },
                     }
                 }
                 None => {
