@@ -21,7 +21,7 @@ impl CheckoutsService {
         while let Ok(event) = receiver.recv().await {
             match event {
                 Event::PaymentCompleted(notification) => {
-                    log::debug!("Checkout: PaymentCompleted notification received, updating checkout status...");
+                    log::info!("Checkout: PaymentCompleted notification received, updating checkout status for checkout_id: {}...", notification.checkout_id);
                     let _update_checkout_status = self
                         .repo
                         .update_checkout_status(
@@ -29,7 +29,7 @@ impl CheckoutsService {
                             notification.checkout_id.as_str(),
                         )
                         .await;
-                    
+
                     let checkout = self.repo.get_checkout(notification.checkout_id.as_str()).await.unwrap();
 
                     let checkout_completed = CheckoutCompletedEvent{

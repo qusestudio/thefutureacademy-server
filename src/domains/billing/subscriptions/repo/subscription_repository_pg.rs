@@ -87,15 +87,13 @@ impl SubscriptionRepository for PostgresSubscriptionRepo {
     }
 
     async fn update_subscription_status(&self, status: String, student_id: String) -> sqlx::Result<bool, Error> {
+        let subscription = self.get_subscription_by_student_id(student_id.clone()).await?;
         let result = sqlx::query("
-                    UPDATE subscriptions SET status = $1 
-                    WHERE (status = 'pending' OR status = 'past_due') 
-                    AND student_id = $2
-                    AND current_period_start <= NOW()
-                    AND current_period_end >= NOW()
+                    UPDATE subscriptions SET status = $1
+                    WHERE id=$2
             ")
-            .bind(&student_id)
             .bind(&status)
+            .bind(&subscription.id)
             .execute(&self.pg_pool)
             .await?;
         Ok(result.rows_affected() > 0)

@@ -129,6 +129,7 @@ pub async fn payment_notification_webhook(
                 // TODO: Something has to shift here a little. Since our checkout ID
                 // TODO: now is a v7 uuid not the one from yoco.
                 Some(checkout_id) => {
+                    
                     let payment = Payment {
                         id: Uuid::now_v7().to_string(),
                         checkout_id: checkout_id.clone(),
@@ -148,7 +149,10 @@ pub async fn payment_notification_webhook(
                                     checkout_id: payment.checkout_id,
                                 };
 
-                                if let Err(e) = service.payments.event_bus.send(Event::PaymentCompleted(payment_completed)) {
+                                if let Err(e) = service
+                                    .payments
+                                    .event_bus
+                                    .send(Event::PaymentCompleted(payment_completed)) {
                                     log::error!("Failed to send payment completed: {}", e);
                                 };
                                 

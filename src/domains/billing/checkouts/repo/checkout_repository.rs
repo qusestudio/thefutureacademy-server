@@ -1,4 +1,5 @@
 use crate::domains::billing::checkouts::models::checkout::{Checkout, CheckoutStatus};
+
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait CheckoutRepository {

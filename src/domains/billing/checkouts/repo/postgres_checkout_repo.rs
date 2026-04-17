@@ -51,18 +51,13 @@ impl CheckoutRepository for PostgresCheckoutRepository {
     }
 
     async fn update_checkout_status(&self, status: CheckoutStatus, checkout_id: &str) -> sqlx::Result<bool, Error> {
-        match self.get_checkout(checkout_id).await {
-            Ok(checkout) => {
-                let _update_status = sqlx::query(" UPDATE checkouts SET status = $1 WHERE id = $2")
-                    .bind(status.to_string())
-                    .bind(checkout_id)
-                    .execute(&self.pg_pool)
-                    .await?;
-                Ok(true)
-            },
-            Err(error) => {
-                Err(error)
-            },
-        }
+        log::info!("Updating checkout status for checkout_id: {} to {}", checkout_id, status.clone().to_string());
+        let _update_status = sqlx::query(" UPDATE checkouts SET status = $1 WHERE id = $2")
+            .bind(status.to_string())
+            .bind(checkout_id)
+            .execute(&self.pg_pool)
+            .await?;
+
+        Ok(true)
     }
 }
