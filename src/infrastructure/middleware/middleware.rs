@@ -70,7 +70,6 @@ pub async fn middleware(req: HttpRequest) -> actix_web::Result<JWTClaims, Error>
     {
         Some(auth_header) => match auth_header.strip_prefix("Bearer ") {
             Some(token) => {
-                println!("TOKEN RECEIVED: {:?}", token);
                 match verify_token(token).await {
                     Ok(decoded_token) => Ok(decoded_token),
                     Err(e) => match e.kind() {
