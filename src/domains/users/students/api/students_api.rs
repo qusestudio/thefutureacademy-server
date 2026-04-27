@@ -1,9 +1,9 @@
-use crate::infrastructure::middleware::middleware::middleware;
+use crate::configuration::state::AppState;
 use crate::domains::users::students::models::student::{Student, StudentNew};
+use crate::domains::users::students::service::students_service::StudentsService;
+use crate::infrastructure::middleware::middleware::middleware;
 use actix_web::web::{Json, Path};
 use actix_web::{HttpRequest, HttpResponse, get, post, web};
-use crate::configuration::state::AppState;
-use crate::domains::users::students::service::students_service::StudentsService;
 
 #[get("/{cognito_id}")]
 pub async fn get_student_by_cognito(
@@ -42,4 +42,15 @@ pub async fn create_student(
         .expect("Failed creating student");
 
     Ok(Json(student))
+}
+
+#[get("")]
+pub async fn get_all_students(state: web::Data<AppState>) -> actix_web::Result<Json<Vec<Student>>> {
+    let students = state
+        .students
+        .get_all_students()
+        .await
+        .expect("Failed getting all students");
+
+    Ok(Json(students))
 }

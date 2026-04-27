@@ -4,7 +4,7 @@ use crate::domains::allocations::api::allocations_api::{delete_allocations, get_
 use crate::domains::billing::checkouts::api::checkouts_api::create_yoco_checkout;
 use crate::domains::billing::payments::api::payments_api::{get_checkout_by_student, payment_notification_webhook};
 use crate::domains::billing::plans::api::plans_api::{create_plan, get_plan, get_plan_by_grade, get_plans};
-use crate::domains::billing::subscriptions::api::subscriptions_api::{create_subscription, get_subscription_by_student_id};
+use crate::domains::billing::subscriptions::api::subscriptions_api::{create_subscription, get_subscription_by_student_id, get_subscriptions_for_student};
 use crate::infrastructure::channel::health_api::send_test_event;
 use crate::domains::enrollments::api::enrollments_api::{create_enrollment, get_enrollment, get_enrollment_for_subject_student, get_enrollments_by_student, get_enrollments_by_subject, get_not_enrolled};
 use crate::domains::learning::lessons::api::lessons_api::{create_lesson, get_lesson, get_lessons_by_topic};
@@ -14,7 +14,7 @@ use crate::domains::users::admin::api::admins_api::{create_admin, get_admin_by_c
 use crate::domains::users::instructors::api::instructor_profiles_api::{create_instructor_profile, get_instructor_profile};
 use crate::domains::users::instructors::api::instructors_api::{create_instructor, get_all_instructors, get_instructor_by_cognito};
 use crate::domains::users::students::api::student_profiles_api::{create_student_profile, get_student_profile_by_cognito};
-use crate::domains::users::students::api::students_api::{create_student, get_student_by_cognito};
+use crate::domains::users::students::api::students_api::{create_student, get_all_students, get_student_by_cognito};
 use crate::infrastructure::analytics::api::analytics_api::{get_no_of_instructors, get_no_of_students};
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
@@ -51,11 +51,13 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             )
             .service(
                 web::scope("/students")
+                    .service(get_all_students)
                     .service(get_student_by_cognito)
                     .service(create_student)
                     .service(get_enrollments_by_student)
                     .service(get_not_enrolled)
                     .service(get_subscription_by_student_id)
+                    .service(get_subscriptions_for_student)
                     .service(get_checkout_by_student),
             )
             .service(

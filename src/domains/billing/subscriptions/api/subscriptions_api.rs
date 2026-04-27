@@ -29,6 +29,31 @@ pub async fn get_subscription_by_student_id(
     }
 }
 
+#[get("/{student_id}/subscriptions")]
+pub async fn get_subscriptions_for_student(
+    state: web::Data<AppState>,
+    req: HttpRequest,
+    student_id: Path<String>,
+) -> actix_web::Result<HttpResponse> {
+    match middleware(req).await {
+        Ok(claims) => {
+            log::info!("User {} requesting subscriptions for", claims.sub);
+            match state.subscriptions.get_subscriptions_for_student(student_id.into_inner()).await {
+                Ok(subscriptions) => {
+                    Ok(HttpResponse::Ok().json(subscriptions))
+                },
+                Err(error) => {
+                    log::error!("{:?}", error);
+                    Ok(HttpResponse::NotFound().json(error.to_string()))
+                }
+            }
+        }
+        Err(error) => Ok(
+            HttpResponse::Unauthorized().json(error.to_string())
+        )
+    }
+}
+
 #[post("")]
 pub async fn create_subscription(
     state: web::Data<AppState>,

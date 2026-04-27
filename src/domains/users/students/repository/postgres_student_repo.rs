@@ -30,4 +30,12 @@ impl StudentRepository for PostgresStudentRepo {
 
         Ok(student)
     }
+
+    async fn db_get_all_students(&self) -> sqlx::Result<Vec<Student>, Error> {
+        let students = sqlx::query_as("SELECT * FROM students")
+            .fetch_all(&self.pg_pool)
+            .await?;
+
+        Ok(students)
+    }
 }

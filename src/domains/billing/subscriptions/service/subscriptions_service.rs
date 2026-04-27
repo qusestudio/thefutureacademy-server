@@ -60,6 +60,15 @@ impl SubscriptionsService {
             }
         }
     }
+
+    pub async fn get_subscriptions_for_student(&self, id: String) -> Result<Vec<Subscription>, Error> {
+        match self.repo.get_subscriptions_for_student(id).await {
+            Ok(subscriptions) => Ok(subscriptions),
+            Err(e) => {
+                Err(Error::other(e.to_string()))
+            }
+        }
+    }
     
     pub async fn update_subscription_status(&self, status: String, id: String) -> Result<bool, Error> {
         match self.repo.update_subscription_status(status, id).await {
