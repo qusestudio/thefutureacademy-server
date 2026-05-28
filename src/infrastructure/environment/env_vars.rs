@@ -11,12 +11,12 @@ pub struct EnvironmentVars {
 // todo: Implement the factory pattern so that only one object is used.
 impl EnvironmentVars {
     pub fn init() -> Self {
-        let port = 
+        let port =
             std::env::var("PORT")
                 .unwrap_or_else(|_| "8000".to_string())
                 .parse::<u16>()
                 .unwrap();
-        let host = 
+        let host =
             std::env::var("HOST")
                 .unwrap_or_else(|_| "0.0.0.0".to_string());
         let frontend_origin =

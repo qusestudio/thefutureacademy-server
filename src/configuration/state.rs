@@ -56,6 +56,8 @@ pub struct AppState {
     pub subscriptions: Data<SubscriptionsService>,
 }
 
+
+
 pub fn app_state(pg_pool: PgPool, event_bus: Data<EventBus>) -> AppState {
     AppState {
         analytics: Data::new(AnalyticsService {

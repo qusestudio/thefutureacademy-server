@@ -26,7 +26,7 @@ impl SubscriptionStatus {
 
 impl From<String> for SubscriptionStatus {
     fn from(status: String) -> Self {
-        match status.as_str() {
+        match status.to_lowercase().as_str() {
             "pending" => SubscriptionStatus::Pending,
             "active" => SubscriptionStatus::Active,
             "canceled" => SubscriptionStatus::Canceled,
